@@ -3,6 +3,8 @@ package ProgressMonitor::Stringify::Fields::Spinner;
 use warnings;
 use strict;
 
+require ProgressMonitor::Stringify::Fields::AbstractField if 0;
+
 # Attributes:
 #	index
 #		Keeps track of which part of the spinner should be rendered this iteration
@@ -45,6 +47,8 @@ package ProgressMonitor::Stringify::Fields::SpinnerConfiguration;
 
 use strict;
 use warnings;
+
+require ProgressMonitor::Stringify::Fields::AbstractFieldConfiguration if 0;
 
 # Attributes
 #	sequence (array ref with strings)
@@ -97,7 +101,7 @@ as a spinner.
   #
   my $spinner = ProgressMonitor::Stringify::Fields::Spinner->new;
   someTask(ProgressMonitor::Stringify::ToStream->new({fields => [ $spinner ]});
-  
+
 =head1 DESCRIPTION
 
 This is a fixed size field representing progress as sequence of strings to display while work
@@ -144,7 +148,7 @@ Thanks to my family. I'm deeply grateful for you!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006,2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

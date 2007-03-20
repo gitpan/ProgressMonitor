@@ -4,7 +4,8 @@ use warnings;
 use strict;
 
 use ProgressMonitor::Exceptions;
-use ProgressMonitor::State;
+require ProgressMonitor::Stringify::Fields::AbstractDynamicField if 0;
+require X::ProgressMonitor::InsufficientWidth if 0;
 
 # Attributes:
 #	innerWidth
@@ -132,6 +133,8 @@ package ProgressMonitor::Stringify::Fields::BarConfiguration;
 use strict;
 use warnings;
 
+require ProgressMonitor::Stringify::Fields::AbstractDynamicFieldConfiguration if 0;
+
 use classes
   extends => 'ProgressMonitor::Stringify::Fields::AbstractDynamicFieldConfiguration',
   attrs   => [
@@ -192,7 +195,7 @@ as a bar.
   #
   my $bar = ProgressMonitor::Stringify::Fields::Bar->new;
   someTask(ProgressMonitor::Stringify::ToStream->new({fields => [ $bar ]});
-  
+
 =head1 DESCRIPTION
 
 This is a dynamic field representing progress as a bar typically of this form:
@@ -267,7 +270,7 @@ Thanks to my family. I'm deeply grateful for you!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006,2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

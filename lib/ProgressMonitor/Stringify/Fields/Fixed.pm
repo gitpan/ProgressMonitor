@@ -3,6 +3,8 @@ package ProgressMonitor::Stringify::Fields::Fixed;
 use warnings;
 use strict;
 
+require ProgressMonitor::Stringify::Fields::AbstractField if 0;
+
 use classes
   extends => 'ProgressMonitor::Stringify::Fields::AbstractField',
   new     => 'new',
@@ -40,6 +42,8 @@ package ProgressMonitor::Stringify::Fields::FixedConfiguration;
 use strict;
 use warnings;
 
+require ProgressMonitor::Stringify::Fields::AbstractFieldConfiguration if 0;
+
 # Attributes
 #	text
 #		Set to any text that should be rendered
@@ -70,7 +74,7 @@ fixed value.
   my $text = ProgressMonitor::Stringify::Fields::Fixed->new({text => 'Percent complete: '});
   my $pct = ProgressMonitor::Stringify::Fields::Percentage->new;
   someTask(ProgressMonitor::Stringify::ToStream->new({fields => [ $text, $pct ]});
-  
+
 =head1 DESCRIPTION
 
 This is a fixed size field rendering a fixed value. Intended for use together with
@@ -117,7 +121,7 @@ Thanks to my family. I'm deeply grateful for you!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006,2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

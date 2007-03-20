@@ -4,6 +4,7 @@ use warnings;
 use strict;
 
 use ProgressMonitor::State;
+require ProgressMonitor::Stringify::Fields::AbstractField if 0;
 
 use Time::HiRes qw(time);
 use Win32;
@@ -150,6 +151,8 @@ package ProgressMonitor::Stringify::Fields::ETAConfiguration;
 use strict;
 use warnings;
 
+require ProgressMonitor::Stringify::Fields::AbstractFieldConfiguration if 0;
+
 no strict 'refs';
 use classes
   extends => 'ProgressMonitor::Stringify::Fields::AbstractFieldConfiguration',
@@ -204,7 +207,7 @@ Version 0.01
 =head1 DESCRIPTION
 
 	@@TODO@@
-	
+
 =head1 AUTHOR
 
 Kenneth Olwing, C<< <knth at cpan.org> >>
@@ -254,7 +257,7 @@ Thanks to my family. I'm deeply grateful for you!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006,2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

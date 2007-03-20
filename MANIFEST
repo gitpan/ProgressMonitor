@@ -2,6 +2,8 @@ Changes
 MANIFEST
 Makefile.PL
 README
+examples/simple_known.pl
+examples/simple_unknown.pl
 lib/ProgressMonitor.pm
 lib/ProgressMonitor/AbstractConfiguration.pm
 lib/ProgressMonitor/AbstractStatefulMonitor.pm
@@ -30,4 +32,7 @@ t/02-ETA.t
 t/02-Fixed.t
 t/02-Percentage.t
 t/02-Spinner.t
+t/03-Message1.t
+t/03-Message2.t
+t/03-Message3.t
 META.yml                                 Module meta-data (added by MakeMaker)

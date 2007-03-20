@@ -3,6 +3,8 @@ package ProgressMonitor::SubTask;
 use warnings;
 use strict;
 
+require ProgressMonitor::AbstractStatefulMonitor if 0;
+
 # Attributes:
 # 	scale
 #		keeps track of the amount we need to scale ticks when reporting to parent
@@ -85,6 +87,18 @@ sub setCanceled
 	return $self->_get_cfg->get_parent->setCanceled(@_);
 }
 
+sub setMessage
+{
+	my $self = shift;
+
+	# propagate this to the parent if we're set that way
+	#
+	my $cfg = $self->_get_cfg;
+	$cfg->get_parent->setMessage(shift()) if $cfg->get_passMessageToParent;
+	
+	return $self->_get_cfg->get_parent->setCanceled(@_);
+}
+
 sub tick
 {
 	my $self  = shift;
@@ -120,6 +134,8 @@ use warnings;
 
 use Scalar::Util qw(blessed);
 
+require ProgressMonitor::AbstractStatefulMonitorConfiguration if 0;
+
 # The configuration class - ensure to extend in the parallel hierarchy as the main class
 #
 # Attributes:
@@ -128,11 +144,20 @@ use Scalar::Util qw(blessed);
 # 	parentTicks
 #		The number of ticks we should use out of the parent, scaled by the ticks we
 #		ourself is told to handle
+#   passMessageToParent
+#       Set to true if 'setMessage' calls should be passed to parent
 #
 use classes
   extends => 'ProgressMonitor::AbstractStatefulMonitorConfiguration',
-  attrs   => ['parent', 'parentTicks',],
+  attrs   => ['parent', 'parentTicks', 'passMessageToParent'],
   ;
+
+sub defaultAttributeValues
+{
+	my $self = shift;
+
+	return {%{$self->SUPER::defaultAttributeValues()}, passMessageToParent => 1};
+}
 
 sub checkAttributeValues
 {
@@ -203,7 +228,7 @@ in order to propagate the correct number of ticks to the parent.
     }
     monitor->end;
   }
-  
+
 =head1 DESCRIPTION
 
 This is a special implementation of the ProgressMonitor interface. It takes another
@@ -253,7 +278,7 @@ Thanks to my family. I'm deeply grateful for you!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006,2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

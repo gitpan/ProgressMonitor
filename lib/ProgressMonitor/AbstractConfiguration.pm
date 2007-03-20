@@ -5,6 +5,8 @@ use strict;
 
 use Scalar::Util qw(blessed);
 
+require X::Usage if 0;
+
 # declare the class
 #
 use classes
@@ -82,50 +84,50 @@ ProgressMonitor::AbstractConfiguration - a base class for all configuration obje
 
 =head1 SYNOPSIS
 
-  package SomeClass;
-  
-  use classes
+    package SomeClass;
+
+    use classes
     ...
-  
-  sub new
-  {
-  	...
-  	my $cfg = shift;
-  	
-  	$cfg = ProgressMonitor::AbstractConfiguration::ensureCfgObject($cfg, __PACKAGE__);
-  	
-  	do_something_with($cfg->get_someValue);
-  	...
-  }
-      
-  ...
-  
-  ###
-  
-  package SomeClassConfiguration;
-  
-  use classes
-    extends => 'ProgressMonitor::AbstractConfiguration',
-    attrs   => ['someValue'],
+
+    sub new
+    {
+        ...
+        my $cfg = shift;
+
+        $cfg = ProgressMonitor::AbstractConfiguration::ensureCfgObject($cfg, __PACKAGE__);
+
+        do_something_with($cfg->get_someValue);
+        ...
+    }
+
+    ...
+
+    ###
+
+    package SomeClassConfiguration;
+
+    use classes
+        extends => 'ProgressMonitor::AbstractConfiguration',
+        attrs   => ['someValue'],
     ;
 
-  sub defaultAttributeValues
-  {
-    my $self = shift;
+    sub defaultAttributeValues
+    {
+        my $self = shift;
 
-    return {%{$self->SUPER::defaultAttributeValues()}, someValue => 42 };
-  }
+        return {%{$self->SUPER::defaultAttributeValues()}, someValue => 42 };
+    }
 
-  sub checkAttributeValues
-  {
-    my $self = shift;
+    sub checkAttributeValues
+    {
+        my $self = shift;
 
-    $self->SUPER::checkAttributeValues();
+        $self->SUPER::checkAttributeValues();
 
-    X::Usage->throw("someValue is not a multiple of 42") if $self->get_value % 42;
+        X::Usage->throw("someValue is not a multiple of 42") if $self->get_value % 42;
 
-    return;
-  }
+        return;
+    }
 
 =head1 DESCRIPTION
 
@@ -187,7 +189,7 @@ configuration object is properly cloned.
 
 Perhaps this class should provide a simple mechanism for storing/loading data
 from/to persistence?
- 
+
 =head1 AUTHOR
 
 Kenneth Olwing, C<< <knth at cpan.org> >>
@@ -215,7 +217,7 @@ Thanks to my family. I'm deeply grateful for you!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006,2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

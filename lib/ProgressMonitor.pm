@@ -3,7 +3,7 @@ package ProgressMonitor;
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 # Here follows the closest we come to describing an interface.
 #
@@ -15,6 +15,7 @@ use classes 0.943
 			  isCanceled  => 'ABSTRACT',
 			  prepare     => 'ABSTRACT',
 			  setCanceled => 'ABSTRACT',
+			  setMessage  => 'ABSTRACT',    
 			  tick        => 'ABSTRACT',
 			 };
 
@@ -22,80 +23,82 @@ use classes 0.943
 
 =head1 NAME
 
-ProgressMonitor - a flexible and configurable framework and implementations
-for providing feedback on how a long-running task is proceeding.
+ProgressMonitor - a flexible and configurable framework for providing feedback on how a long-running task is proceeding.
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =head1 SYNOPSIS
 
-	use strict;
-	use warnings;
+    use strict;
+    use warnings;
 
-	use Time::HiRes qw(usleep);
+    use Time::HiRes qw(usleep);
 
-	use ProgressMonitor::Stringify::ToStream;
-	use ProgressMonitor::Stringify::Fields::Bar;
-	use ProgressMonitor::Stringify::Fields::Fixed;
-	use ProgressMonitor::Stringify::Fields::Percentage;
-	use ProgressMonitor::SubTask;
+    use ProgressMonitor::Stringify::ToStream;
+    use ProgressMonitor::Stringify::Fields::Bar;
+    use ProgressMonitor::Stringify::Fields::Fixed;
+    use ProgressMonitor::Stringify::Fields::Percentage;
+    use ProgressMonitor::SubTask;
 
-	sub someTask
-	{
-		my $monitor = shift;
+    sub someTask
+    {
+        my $monitor = shift;
 
-		$monitor->prepare();
-		$monitor->begin(100);
-		for (1 .. 40)
-		{
-			usleep(100_000);
-			$monitor->tick(1);
-		}
+        $monitor->prepare();
+        $monitor->begin(100);
+        for (1 .. 40)
+        {
+            usleep(100_000);
+            $monitor->tick(1);
+        }
 
-		anotherTask(ProgressMonitor::SubTask->new({parent => $monitor, parentTicks => 20}));
+        anotherTask(ProgressMonitor::SubTask->new({parent => $monitor, parentTicks => 20}));
 
-		for (1 .. 40)
-		{
-			usleep(100_000);
-			$monitor->tick(1);
-		}
-	
-		$monitor->end();
-	}
+        for (1 .. 40)
+        {
+            usleep(100_000);
+            $monitor->tick(1);
+        }
+    
+        $monitor->end();
+    }
 
-	sub anotherTask
-	{
-		my $monitor = shift;
-	
-		$monitor->prepare();
-		$monitor->begin(3000);
+    sub anotherTask
+    {
+        my $monitor = shift;
+    
+        $monitor->prepare();
+        $monitor->begin(3000);
 
-		for (1 .. 3000)
-		{
-			usleep(1_000);
-			$monitor->tick(1);
-		}
-	
-		$monitor->end();
-	}
+        for (1 .. 3000)
+        {
+            usleep(1_000);
+            $monitor->tick(1);
+        }
+    
+        $monitor->end();
+    }
 
-	someTask(
-			 ProgressMonitor::Stringify::ToStream->new(
-													   {
-														fields => [
-																   ProgressMonitor::Stringify::Fields::Bar->new,
-																   ProgressMonitor::Stringify::Fields::Fixed->new,
-																   ProgressMonitor::Stringify::Fields::Percentage->new,
-																  ]
-													   }
-													  )
-			);
+    someTask(
+		ProgressMonitor::Stringify::ToStream->new(
+			{
+				fields =>
+                    [
+                        ProgressMonitor::Stringify::Fields::Bar->new,
+                        ProgressMonitor::Stringify::Fields::Fixed->new,
+                        ProgressMonitor::Stringify::Fields::Percentage->new,
+                    ]
+			}
+		)
+	);
 
 =head1 DESCRIPTION
 
-The above synopsis shows it in a nutshell - cut and paste and try it. The 
+The above synopsis shows it in a nutshell - cut and paste and try it. Or, peruse
+the examples in the examples/ directory.
+
 =head2 BACKGROUND
 
 This is one more implementation of the idea of making code report progress in
@@ -216,7 +219,7 @@ by the time the subtask is 100% complete, it has used up only the allotment it w
 If you think about it, it's clear that this will work for arbitrarily deeply nested
 subtasks - as long as all methods accept a monitor and use the pattern described here,
 they can call each other in any order.
- 
+
 =back
 
 =head1 Available monitor and field types
@@ -362,7 +365,7 @@ and surrounding mechanisms.
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006, 2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

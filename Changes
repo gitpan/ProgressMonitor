@@ -2,5 +2,7 @@ Revision history for ProgressMonitor
 
 0.01    2006-11-27
         First version.
-        
 
+0.02	2007-03-20
+		Added the setMessage method and associated configuration options for
+		the various monitors.        

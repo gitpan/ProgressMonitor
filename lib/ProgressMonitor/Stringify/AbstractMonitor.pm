@@ -5,6 +5,8 @@ use strict;
 
 use ProgressMonitor::Exceptions;
 
+require ProgressMonitor::AbstractStatefulMonitor if 0;
+
 # Attributes:
 #	width
 #		The final width the field(s) this monitor manages will occupy
@@ -12,6 +14,7 @@ use classes
   extends       => 'ProgressMonitor::AbstractStatefulMonitor',
   class_methods => ['_new'],
   attrs_ro      => ['width',],
+  attrs_pr      => ['msgto'],
   throws        => ['X::ProgressMonitor::InsufficientWidth',],
   ;
 
@@ -96,20 +99,53 @@ sub _new
 	return $self;
 }
 
+sub setMessage
+{
+	my $self = shift;
+	my $msg  = shift;
+
+	$self->{$ATTR_msgto} = undef;
+
+	return $self->SUPER::setMessage($msg);
+}
+
 ### protected
+
+sub _get_message
+{
+	my $self = shift;
+
+	my $now = time;
+	if (defined($self->{$ATTR_msgto}))
+	{
+		$self->setMessage(undef) if ($self->{$ATTR_msgto} <= $now);
+	}
+	else
+	{
+		my $to = $self->_get_cfg->get_messageTimeout;
+		$self->{$ATTR_msgto} = time + $to if $to >= 0;
+	}
+
+	return $self->SUPER::_get_message;
+}
 
 # helper method to call each field and render a complete line
 #
 sub _toString
 {
-	my $self = shift;
+	my $self            = shift;
+	my $considerMessage = shift();
 
-	my $state = $self->_get_state;
-	my $ticks = $self->_get_ticks;
+	$considerMessage = 1 unless defined($considerMessage);
+
+	my $state      = $self->_get_state;
+	my $ticks      = $self->_get_ticks;
 	my $totalTicks = $self->_get_totalTicks;
 
+	my $cfg       = $self->_get_cfg;
 	my $rendition = '';
-	for (@{$self->_get_cfg->get_fields})
+	my $allFields = $cfg->get_fields;
+	for (@$allFields)
 	{
 		# ask each field to render itself but ensure the result is exactly the width is
 		# what its supposed to be
@@ -117,6 +153,42 @@ sub _toString
 		my $fr = $_->render($state, $ticks, $totalTicks);
 		my $fw = $_->get_width;
 		$rendition .= sprintf("%*.*s", $fw, $fw, $fr);
+	}
+
+	if ($considerMessage)
+	{
+		my $ms  = $cfg->get_messageStrategy;
+		my $msg = $self->_get_message;
+		if ($msg && $ms ne 'none')
+		{
+			my $w = $self->{$ATTR_width};
+
+			if ($ms eq 'newline')
+			{
+				$msg .= $cfg->get_messageFiller x ($w - length($msg)) if ($w > length($msg));
+				$rendition = sprintf("%*.*s\n%s", $w, $w, $msg, $rendition);
+				$self->setMessage(undef);
+			}
+			else
+			{
+				# overlay
+				my $start_ovrfld = $cfg->get_messageOverlayStartField;
+				my $end_ovrfld   = $cfg->get_messageOverlayEndField;
+				my $start_ovrpos;
+				my $end_ovrpos;
+				my $offset = 0;
+				for (0 .. @$allFields - 1)
+				{
+					$start_ovrpos = $offset if $start_ovrfld == $_;
+					$offset += $allFields->[$_]->get_width;
+					$end_ovrpos = $offset if $end_ovrfld == $_;
+					last if ($start_ovrpos && $end_ovrpos);
+				}
+				my $len = $end_ovrpos - $start_ovrpos;
+				$msg .= $cfg->get_messageFiller x ($len - length($msg)) if ($len > length($msg));
+				substr($rendition, $start_ovrpos, $len) = $msg;
+			}
+		}
 	}
 
 	return $rendition;
@@ -131,6 +203,8 @@ use warnings;
 
 use Scalar::Util qw(blessed);
 
+require ProgressMonitor::AbstractStatefulMonitorConfiguration if 0;
+
 # Attributes:
 #	maxWidth
 #		The maximum width this monitor can occupy altogether.
@@ -138,10 +212,29 @@ use Scalar::Util qw(blessed);
 #	fields
 #		An array of fields (or a single field if only one) that should be used
 #		A field instance can not be reused in the list!
+#   messageStrategy
+#       Determines the strategy to use when displaying messages.
+#       'none'   : doesn't display messages
+#       'overlay': requires 'messageOverlaysFields' to be set
+#       'newline': renders it with a newline at the end, in effect pushing the
+#                  other fields 'down'.
+#   messageOverlayStartfield
+#       The field on which message overlay should start. Defaults to 0.
+#   messageOverlayEndfield
+#       The field on which message overlay should end. Defaults to last field.
+#   messageFiller
+#       The character for filling out the length of the message if
+#       is not long enough to overlay the full length of the field(s)
+#       it is set to overlay.
+#   messageTimeout
+#       The time in seconds before the message is cleared automatically. This
+#       is only relevant for overlay (for newline, it only appears once).
+#       Defaults to 3 seconds. Set to -1 for 'no timeout'.
 #
 use classes
   extends => 'ProgressMonitor::AbstractStatefulMonitorConfiguration',
-  attrs   => ['maxWidth', 'fields',],
+  attrs   => ['maxWidth', 'fields', 'messageStrategy', 'messageOverlayStartField', 'messageOverlayEndField', 'messageFiller',
+			'messageTimeout'],
   ;
 
 sub defaultAttributeValues
@@ -150,8 +243,13 @@ sub defaultAttributeValues
 
 	return {
 			%{$self->SUPER::defaultAttributeValues()},
-			maxWidth => 79,
-			fields   => [],
+			maxWidth                 => 79,
+			fields                   => [],
+			messageStrategy          => 'newline',
+			messageOverlayStartField => 0,
+			messageOverlayEndField   => undef,
+			messageFiller            => ' ',
+			messageTimeout           => 3,
 		   };
 }
 
@@ -163,12 +261,14 @@ sub checkAttributeValues
 
 	my $maxWidth = $self->get_maxWidth;
 	X::Usage->throw("invalid maxWidth: $maxWidth") unless $maxWidth >= 0;
+
 	my $fields = $self->get_fields;
 	if (ref($fields) ne 'ARRAY')
 	{
 		$fields = [$fields];
 		$self->set_fields($fields);
 	}
+
 	my %seenFields;
 	for (@$fields)
 	{
@@ -176,6 +276,24 @@ sub checkAttributeValues
 		X::Usage->throw("same instance of field used more than once: $_") if $seenFields{$_};
 		$seenFields{$_} = 1;
 	}
+
+	my $ms = $self->get_messageStrategy;
+	X::Usage->throw("invalid value for messageStrategy: $ms") unless $ms =~ /^(?:none|overlay|newline)$/;
+
+	if ($ms eq 'overlay')
+	{
+		my $maxFieldNum = @$fields - 1;
+		$self->set_messageOverlayEndField($maxFieldNum) unless defined($self->get_messageOverlayEndField);
+
+		my $start = $self->get_messageOverlayStartField;
+		my $end   = $self->get_messageOverlayEndField;
+		X::Usage->throw("illegal overlay start field: $start") if ($start < 0 || $start > $maxFieldNum);
+		X::Usage->throw("illegal overlay end field: $start")
+		  if ($end < 0 || $end > $maxFieldNum || $end < $start);
+	}
+
+	my $mf = $self->get_messageFiller;
+	X::Usage->throw("messageFiller not a character: $mf") unless length($mf) == 1;
 
 	return;
 }
@@ -206,6 +324,28 @@ Configuration data:
     have reached their maxWidth if any.
   fields (default => [])
     An array ref with field instances.
+  messageStrategy
+    An identifiers that describes how messages should be inserted into the
+    rendition:
+      none     Not surprisingly, this suppresses message presentation.
+      overlay  This will cause the message to overlay one or more of the other
+               fields, so as to keep things on one line. This setting will work
+               in conjunction with messageTimeout, messageOverlayStartField and
+               messageOverlayEndField.
+      newline  This will cause the message and a newline to be inserted in front
+               of the regular rendition, causing the running rendition to be
+               'pushed' forward. This is the default.
+  messageFiller
+    If the message is too short for the allotted space, it will be filled with
+    this character. Defaults to <space>.
+  messageTimeout
+    This is only relevant for the 'overlay' strategy. If the code doesn't
+    explicitly set the message to undef/blank, the timeout will automatically
+    remove it. The default is 3 seconds. Set to -1 for infinite.
+  messageOverlayStartField
+  messageOverlayEndField
+    Together these define the starting and ending field number that the message
+    should overlay. This defaults to 'all fields'.
     
 Throws X::ProgressMonitor::InsufficientWidth if the maxWidth is to small to 
 handle the minimum requirements for all the fields.
@@ -243,7 +383,7 @@ Thanks to my family. I'm deeply grateful for you!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006,2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

@@ -8,6 +8,8 @@ use ProgressMonitor::State;
 use constant BACKSPACE => "\b";
 use constant SPACE     => ' ';
 
+require ProgressMonitor::Stringify::AbstractMonitor if 0;
+
 # Attributes:
 #	backspaces (string)
 #		Precomputed string with backspaces used to return to the beginning so as
@@ -43,32 +45,21 @@ sub render
 	my $cfg    = $self->_get_cfg;
 	my $stream = $cfg->get_stream;
 	my $bs     = $self->{$ATTR_backspaces};
-	if ($bs)
-	{
-		# We have rendered at least once before, so we need to print the backspaces
-		#
-		print $stream $bs;
-	}
-	else
-	{
-		# this is the first time we're called, just initialize the backspaces
-		#
-		$bs = $self->{$ATTR_backspaces} = BACKSPACE x $self->get_width;
-	}
+	$bs = $self->{$ATTR_backspaces} = BACKSPACE x $self->get_width unless $bs;
 
-	# now render and print - unless it's the final call, and we should wipe it
+	# render and print - unless it's the final call, and we should wipe it
 	#
 	if ($self->_get_state == STATE_DONE && $cfg->get_wipeAtEnd)
 	{
 		# first space it out, and then bs again to return
 		#
 		print $stream SPACE x $self->get_width;
-		print $stream $bs;
 	}
 	else
 	{
 		print $stream $self->_toString;
 	}
+	print $stream $bs;
 
 	return;
 }
@@ -81,6 +72,8 @@ use strict;
 use warnings;
 
 use Scalar::Util qw(openhandle);
+
+require ProgressMonitor::Stringify::AbstractMonitorConfiguration if 0;
 
 # Attributes
 #	stream (handle)
@@ -97,7 +90,7 @@ sub defaultAttributeValues
 {
 	my $self = shift;
 
-	return {%{$self->SUPER::defaultAttributeValues()}, stream => \*STDOUT, wipeAtEnd => 0};
+	return {%{$self->SUPER::defaultAttributeValues()}, stream => \*STDOUT, wipeAtEnd => 1};
 }
 
 sub checkAttributeValues
@@ -124,7 +117,7 @@ stringified feedback to a stream.
   # call someTask and give it a monitor that prints to stdout
   #
   someTask(ProgressMonitor::Stringify::ToStream->new({fields => [ ... ]}));
-  
+
 =head1 DESCRIPTION
 
 This is a concrete implementation of a ProgressMonitor. It will send the stringified
@@ -150,9 +143,10 @@ Inherits from ProgressMonitor::Stringify::AbstractMonitor.
 Configuration data:
   stream (default => \*STDOUT)
     The stream to where the stringified feedback should go.
-  wipeAtEnd (default => 0)
+
+  wipeAtEnd (default => 1)
     Whether the feedback should be wiped at the end.
-    
+
 =back
 
 =head1 AUTHOR
@@ -182,7 +176,7 @@ Thanks to my family. I'm deeply grateful for you!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006,2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

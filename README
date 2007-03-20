@@ -1,9 +1,9 @@
-ProgressMonitor 0.01
+ProgressMonitor 0.02
 
-This is the first release of ProgressMonitor, a generic, flexible and extendable
-OO framework for using the notion of giving feedback (to a user, commonly) that
-a long-running task is actually doing something (and preferably tell how much of
-the task remains).
+This is the second release of ProgressMonitor, a generic, flexible and
+extendable OO framework for using the notion of giving feedback (to a user,
+commonly) that a long-running task is actually doing something (and preferably
+tell how much of the task remains).
 
 A piece of code that does a task declares that it takes a progress monitor
 instance. When/if given one, it will report progress in a defined and generic
@@ -14,6 +14,15 @@ overall correct reporting.
 The type of progress monitor given to the top task has the option to provide
 the (user) feedback in any manner it so chooses (indeed, if any - a 'null'
 monitor is perfectly legal).
+
+Primarily, the interface is concerned with 'ticks' or 'heartbeats' from the 
+working code. If the amount of work was known beforehand, then these ticks will
+help compute remaining work and present this in a number of ways. A secondary
+part of the interface also allows work code to provide messages (typically short
+ones, they will be cut if they won't fit in the provided space) on what it is
+doing. The monitor can decide to show or not show this, and if it shows it, it
+can do so in a couple of ways - perhaps as new lines, or overlaying the ordinary
+field(s).
 
 Included in the package is two main variants of monitors, both of which deals
 with reporting using strings. Special monitors for 'null' use and for subtasks

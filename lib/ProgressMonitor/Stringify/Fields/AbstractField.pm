@@ -73,6 +73,8 @@ package ProgressMonitor::Stringify::Fields::AbstractFieldConfiguration;
 use strict;
 use warnings;
 
+require ProgressMonitor::AbstractConfiguration if 0;
+
 # declare the configuration class for the above class, this is just a starting
 # point to derive from as needed
 #
@@ -128,7 +130,7 @@ implementation for stringify progress.
 	
     ...
   }
-  
+
 =head1 DESCRIPTION
 
 This class is a base class for fields for stringified feedback.
@@ -166,7 +168,7 @@ The constructor, needs to be called by subclasses.
 
 Configuration data:
   (none)
-  
+
 =item _get_cfg
 
 Returns the configuration object.
@@ -204,7 +206,7 @@ Thanks to my family. I'm deeply grateful for you!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006,2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 19;
+use Test::More tests => 20;
 
 sub not_in_file_ok {
     my ($filename, %regex) = @_;
@@ -56,6 +56,7 @@ module_boilerplate_ok('lib/ProgressMonitor/Stringify/Fields/AbstractDynamicField
 module_boilerplate_ok('lib/ProgressMonitor/Stringify/Fields/AbstractField.pm');
 module_boilerplate_ok('lib/ProgressMonitor/Stringify/Fields/Bar.pm');
 module_boilerplate_ok('lib/ProgressMonitor/Stringify/Fields/Counter.pm');
+module_boilerplate_ok('lib/ProgressMonitor/Stringify/Fields/ETA.pm');
 module_boilerplate_ok('lib/ProgressMonitor/Stringify/Fields/Fixed.pm');
 module_boilerplate_ok('lib/ProgressMonitor/Stringify/Fields/Percentage.pm');
 module_boilerplate_ok('lib/ProgressMonitor/Stringify/Fields/Spinner.pm');

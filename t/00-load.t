@@ -1,6 +1,6 @@
 #!perl
 
-use Test::More tests => 17;
+use Test::More tests => 18;
 
 BEGIN
 {
@@ -15,6 +15,7 @@ BEGIN
 	use_ok('ProgressMonitor::Stringify::Fields::AbstractField');
 	use_ok('ProgressMonitor::Stringify::Fields::Bar');
 	use_ok('ProgressMonitor::Stringify::Fields::Counter');
+	use_ok('ProgressMonitor::Stringify::Fields::ETA');
 	use_ok('ProgressMonitor::Stringify::Fields::Fixed');
 	use_ok('ProgressMonitor::Stringify::Fields::Percentage');
 	use_ok('ProgressMonitor::Stringify::Fields::Spinner');

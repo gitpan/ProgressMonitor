@@ -3,6 +3,8 @@ package ProgressMonitor::Null;
 use warnings;
 use strict;
 
+require ProgressMonitor::AbstractStatefulMonitor if 0;
+
 use classes
   extends => 'ProgressMonitor::AbstractStatefulMonitor',
   new     => 'new',
@@ -32,6 +34,8 @@ package ProgressMonitor::NullConfiguration;
 
 use strict;
 use warnings;
+
+require ProgressMonitor::AbstractStatefulMonitorConfiguration if 0;
 
 use classes
   extends => 'ProgressMonitor::AbstractStatefulMonitorConfiguration',
@@ -101,7 +105,7 @@ Thanks to my family. I'm deeply grateful for you!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006,2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

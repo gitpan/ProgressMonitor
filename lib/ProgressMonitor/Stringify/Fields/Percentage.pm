@@ -6,6 +6,8 @@ use strict;
 use constant PERCENT       => '%';
 use constant DECIMAL_POINT => '.';
 
+require ProgressMonitor::Stringify::Fields::AbstractField if 0;
+
 # Attributes:
 #	unknown
 #		Precomputed string when total is undef (unknown)
@@ -59,6 +61,8 @@ package ProgressMonitor::Stringify::Fields::PercentageConfiguration;
 use strict;
 use warnings;
 
+require ProgressMonitor::Stringify::Fields::AbstractFieldConfiguration if 0;
+
 # Attributes
 #	decimals
 #		The number of decimals on the percentage
@@ -110,7 +114,7 @@ renders progress as a percentage.
   #
   my $pct = ProgressMonitor::Stringify::Fields::Percentage->new;
   someTask(ProgressMonitor::Stringify::ToStream->new({fields => [ $pct ]});
-  
+
 =head1 DESCRIPTION
 
 This is a fixed size field representing progress as a percentage, e.g. ' 52.34 %'.
@@ -160,7 +164,7 @@ Thanks to my family. I'm deeply grateful for you!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006,2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

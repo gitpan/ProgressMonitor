@@ -3,6 +3,8 @@ package ProgressMonitor::Stringify::Fields::AbstractDynamicField;
 use warnings;
 use strict;
 
+require ProgressMonitor::Stringify::Fields::AbstractField if 0;
+
 use classes
   extends => 'ProgressMonitor::Stringify::Fields::AbstractField',
   methods => {grabExtraWidth => 'grabExtraWidth', widthChange => 'ABSTRACT'},
@@ -60,6 +62,8 @@ package ProgressMonitor::Stringify::Fields::AbstractDynamicFieldConfiguration;
 
 use strict;
 use warnings;
+
+require ProgressMonitor::Stringify::Fields::AbstractFieldConfiguration if 0;
 
 # Attributes:
 #	minWidth
@@ -137,7 +141,7 @@ Notification that the width has changed, thus giving the field a chance to recom
 some of its attributes as needed.
 
 =back
-	
+
 =head1 PROTECTED METHODS
 
 =over 2
@@ -157,7 +161,7 @@ Configuration data:
 Calls SUPER and then widthChange.
 
 =back
-	
+
 =head1 AUTHOR
 
 Kenneth Olwing, C<< <knth at cpan.org> >>
@@ -185,7 +189,7 @@ Thanks to my family. I'm deeply grateful for you!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006,2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

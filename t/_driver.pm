@@ -42,7 +42,7 @@ sub runtest
 		return 0;
 	};
 
-	my $monitor = ProgressMonitor::Stringify::ToCallback->new({fields => [$field], callback => $cb});
+	my $monitor = ProgressMonitor::Stringify::ToCallback->new({fields => [$field], tickCallback => $cb});
 	$monitor->prepare;
 	$monitor->tick for (1 .. $prepareTicks);
 	$monitor->begin($activeTicks1 + $subtaskTicks->[0] + $activeTicks2);

@@ -6,11 +6,15 @@ use strict;
 use ProgressMonitor::Exceptions;
 use ProgressMonitor::State;
 
+require ProgressMonitor if 0;
+require X::ProgressMonitor::InvalidState if 0;
+require X::ProgressMonitor::TooManyTicks if 0;
+
 use classes
   extends       => 'ProgressMonitor',
   class_methods => ['_new'],
   methods       => {render => 'ABSTRACT',},
-  attrs_pr      => ['cfg', 'canceled', 'state', 'totalTicks', 'ticks', 'multiplier'],
+  attrs_pr      => ['cfg', 'canceled', 'state', 'totalTicks', 'ticks', 'multiplier', 'message'],
   throws => ['X::ProgressMonitor::InvalidState', 'X::ProgressMonitor::TooManyTicks',],
   ;
 
@@ -87,6 +91,29 @@ sub setCanceled
 	return;
 }
 
+sub setMessage
+{
+	my $self = shift;
+	my $msg = shift;
+	
+	if ($msg)
+	{
+		# replace embedded newlines/carriage returns/tabs with plain spaces and
+		# then trim edges
+		#
+		$msg =~ s#[\n\r\t]# #g;
+		$msg =~ s#^\s*##;
+		$msg =~ s#\s*$##;
+		$msg = undef if length($msg) == 0;
+	}
+	
+	$self->{$ATTR_message} = $msg;
+	
+	$self->render;
+	
+	return;	
+}
+
 sub tick
 {
 	my $self  = shift;
@@ -160,6 +187,13 @@ sub _get_totalTicks
 	return $self->{$ATTR_totalTicks};
 }
 
+sub _get_message
+{
+	my $self = shift;
+	
+	return $self->{$ATTR_message};
+}
+
 # the protected ctor
 #
 sub _new
@@ -179,6 +213,7 @@ sub _new
 	$self->{$ATTR_ticks}      = 0;
 	$self->{$ATTR_totalTicks} = undef;
 	$self->{$ATTR_multiplier} = 0 + ("1" . "0" x $cfg->get_resolution);
+	$self->{$ATTR_message} = undef;
 
 	return $self;
 }
@@ -231,6 +266,8 @@ package ProgressMonitor::AbstractStatefulMonitorConfiguration;
 
 use strict;
 use warnings;
+
+require ProgressMonitor::AbstractConfiguration if 0;
 
 # The configuration class for the above class
 #
@@ -411,7 +448,7 @@ Thanks to my family. I'm deeply grateful for you!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006,2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

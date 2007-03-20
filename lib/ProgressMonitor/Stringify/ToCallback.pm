@@ -3,6 +3,8 @@ package ProgressMonitor::Stringify::ToCallback;
 use warnings;
 use strict;
 
+require ProgressMonitor::Stringify::AbstractMonitor if 0;
+
 use classes
   extends => 'ProgressMonitor::Stringify::AbstractMonitor',
   new     => 'new',
@@ -22,7 +24,19 @@ sub render
 {
 	my $self = shift;
 
-	my $cancel = &{$self->_get_cfg->get_callback}($self->_toString);
+	# call the tick callback with the normal rendering
+	# unless the message callback is set, then don't render message
+	# and pass that separately to the msg callback
+	#
+	my $cfg = $self->_get_cfg;
+	my $tcb = $cfg->get_tickCallback;
+	my $mcb = $cfg->get_messageCallback;
+	my $cancel = $tcb->($self->_toString($mcb ? 0 : 1));
+	if ($mcb)
+	{
+		my $msg = $self->_get_message; 
+		$mcb->($msg) if $msg;
+	}
 	$self->setCanceled($cancel) unless $self->isCanceled;
 
 	return;
@@ -35,20 +49,26 @@ package ProgressMonitor::Stringify::ToCallbackConfiguration;
 use strict;
 use warnings;
 
+require ProgressMonitor::Stringify::AbstractMonitorConfiguration if 0;
+
 # Attributes:
 #	callback (code ref)
 #		The callback will be called with the rendered string and should return a
 # 		boolean, which will be used to set the cancellation status with.
 use classes
   extends => 'ProgressMonitor::Stringify::AbstractMonitorConfiguration',
-  attrs   => ['callback'],
+  attrs   => ['tickCallback', 'messageCallback'],
   ;
 
 sub defaultAttributeValues
 {
 	my $self = shift;
 
-	return {%{$self->SUPER::defaultAttributeValues()}, callback => sub { X::Usage->throw("missing callback"); 1; },};
+	return {
+			%{$self->SUPER::defaultAttributeValues()},
+			tickCallback => sub { X::Usage->throw("missing tickCallback"); 1; },
+			messageCallback => undef,
+		   };    
 }
 
 sub checkAttributeValues
@@ -57,7 +77,9 @@ sub checkAttributeValues
 
 	$self->SUPER::checkAttributeValues();
 
-	X::Usage->throw("callback is not a code ref") unless ref($self->get_callback) eq 'CODE';
+	X::Usage->throw("tickCallback is not a code ref") unless ref($self->get_tickCallback) eq 'CODE';
+	my $mcb = $self->get_messageCallback;
+	X::Usage->throw("messageCallback is not a code ref") if ($mcb && ref($mcb) ne 'CODE');
 
 	return;
 }
@@ -75,8 +97,8 @@ stringified feedback to a callback.
   # call someTask and give it a monitor to call us back
   # on callback, just do something unimaginative (print it...:-) and return 0 (don't cancel)
   #
-  someTask(ProgressMonitor::Stringify::ToCallback->new({fields => [ ... ], callback => sub { print "GOT: ", shift(), "\n"; 0; });
-  
+  someTask(ProgressMonitor::Stringify::ToCallback->new({fields => [ ... ], tickCallback => sub { print "GOT: ", shift(), "\n"; 0; });
+
 =head1 DESCRIPTION
 
 This is a concrete implementation of a ProgressMonitor. It will send the stringified
@@ -91,11 +113,18 @@ Inherits from ProgressMonitor::Stringify::AbstractMonitor.
 =item new( $hashRef )
 
 Configuration data:
-  callback
-    A code reference to an anonymous sub. For each rendering, it will be called
+  tickCallback
+    A code reference to an anonymous sub. For each rendering tick, it will be called
     with the rendered string as the argument. The return value will be used to 
     set the cancellation status.
-    
+  messageCallback
+    A code reference that will be called specifically with the current message.
+    Note that setting this changes the behavior of tickCallback; normally,
+    tickCallback will receive the rendered string including any message.
+    However, by setting messageCallback, the message will be skipped during
+    rendition of the ordinary fields. Also, if this is set, the strategy used
+    is of no importance.
+
 =back
 
 =head1 AUTHOR
@@ -125,7 +154,7 @@ Thanks to my family. I'm deeply grateful for you!
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Kenneth Olwing, all rights reserved.
+Copyright 2006,2007 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
