@@ -3,7 +3,7 @@ package ProgressMonitor;
 use warnings;
 use strict;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 # Here follows the closest we come to describing an interface.
 #
@@ -27,7 +27,7 @@ ProgressMonitor - a flexible and configurable framework for providing feedback o
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =head1 SYNOPSIS
 
@@ -157,7 +157,7 @@ mode). This will, depending on feedback mechanism, trigger some visible indicati
 
 This step is actually
 optional - maybe you already know how much work you need to do. Or, also common, you really don't know, and
-it may be either impossible to figure out, or it may be prohibitive to calculate. In this case, you can do
+it may be either impossible to figure out, or it may be prohibitive to calculate. In this case, you can go
 straight to calling 'begin'.
 
 =item BEING ACTIVE
@@ -186,6 +186,15 @@ the current count - but beware of calling tick with a number that causes the tot
 be greater than your promise; this is an error. In any event, this gives the clearest
 signal to presentations, one which they typically use to calculate amount done vs amount 
 remaining, and then render this in the best way.
+
+While 'ticking' is the primary way of informing the user, sometimes it makes sense
+not only saying "I'm active", but also saying 'I'm currently doing this', i.e. a straightforward
+message. Messages is a sort of out-of-band communication in regards to ticks. Depending
+on how the monitor was set up, they may be ignored altogether, written using newlines 'beside'
+the tick, or perhaps overlaying the tick field(s) (all or in part) - and then automatically
+time out, restoring the tick fields. Anyway, feel free to give informational messages as
+needed (but don't assume they'll be seen - just as with ticks, as the monitor in total
+may be just a black hole). 
 
 =item FINISHING
 

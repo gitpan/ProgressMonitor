@@ -116,8 +116,14 @@ Inherits from ProgressMonitor::Stringify::Fields::AbstractField.
 =item new( $hashRef )
 
 Configuration data:
-  sequence (default => ['-', '\\', '|', '/'])
-    The sequence of strings to alternate between. All strings must be of the same length.
+
+=over 2
+
+=item sequence (default => ['-', '\\', '|', '/'])
+
+The sequence of strings to alternate between. All strings must be of the same length.
+
+=back
 
 =back
 

@@ -5,4 +5,8 @@ Revision history for ProgressMonitor
 
 0.02	2007-03-20
 		Added the setMessage method and associated configuration options for
-		the various monitors.        
+		the various monitors.
+
+0.03	2007-03-21
+        Minor fixes to adjust the tar building (my gnuwin32 tar creates weird
+        permissions in the archive).

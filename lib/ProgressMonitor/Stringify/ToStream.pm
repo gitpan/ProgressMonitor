@@ -141,11 +141,18 @@ Inherits from ProgressMonitor::Stringify::AbstractMonitor.
 =item new( $hashRef )
 
 Configuration data:
-  stream (default => \*STDOUT)
-    The stream to where the stringified feedback should go.
 
-  wipeAtEnd (default => 1)
-    Whether the feedback should be wiped at the end.
+=over 2
+
+=item stream (default => \*STDOUT)
+
+The stream to where the stringified feedback should go.
+
+=item wipeAtEnd (default => 1)
+
+Whether the feedback should be wiped at the end.
+
+=back
 
 =back
 

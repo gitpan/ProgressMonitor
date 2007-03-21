@@ -7,7 +7,6 @@ use ProgressMonitor::State;
 require ProgressMonitor::Stringify::Fields::AbstractField if 0;
 
 use Time::HiRes qw(time);
-use Win32;
 
 use constant MINUTE => 60;
 use constant HOUR   => 60 * MINUTE;

@@ -193,25 +193,41 @@ Inherits from ProgressMonitor::Stringify::Fields::AbstractField.
 =item new( $hashRef )
 
 Configuration data:
-  digits (default => 5)
-    The number of digits it should use. With the default it can thus indicate up 
-    to '99999'. Values above that will be printed using the overflow character.
-  delimiter (default => '/')
-    The delimiter string between the current and total values.
-  idleDelimiterSequence (default => ['\\', '/'])
-    When progress is made but with tick count not advancing, this sequence is used
-    to show that something is happening. It should be a list of strings with each string
-    having the same length as the delimiter. As idle work is done, the sequence will 
-    be stepped through, but immediately revert to the regular delimiter as soon as 
-    a tick is detected.
-  overflowCharacter (default => '#')  
-    The character to be used when the value is to large to fit using the given amount
-    of digits.
-  unknownCharacter (default => '?')
-    The character to use when the total is unknown.
-  showTotal (default => 1)
-    Turns on or off the total display. With no total displayed, no delimiter displayed 
-    and hence, no idleness shown either.
+
+=over 2
+
+=item digits (default => 5)
+
+The number of digits it should use. With the default it can thus indicate up 
+to '99999'. Values above that will be printed using the overflow character.
+
+=item delimiter (default => '/')
+
+The delimiter string between the current and total values.
+
+=item idleDelimiterSequence (default => ['\\', '/'])
+
+When progress is made but with tick count not advancing, this sequence is used
+to show that something is happening. It should be a list of strings with each string
+having the same length as the delimiter. As idle work is done, the sequence will 
+be stepped through, but immediately revert to the regular delimiter as soon as 
+a tick is detected.
+
+=item overflowCharacter (default => '#')  
+
+The character to be used when the value is to large to fit using the given amount
+of digits.
+
+=item unknownCharacter (default => '?')
+
+The character to use when the total is unknown.
+
+=item showTotal (default => 1)
+
+Turns on or off the total display. With no total displayed, no delimiter displayed 
+and hence, no idleness shown either.
+
+=back
 
 =back
 

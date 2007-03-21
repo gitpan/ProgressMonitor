@@ -128,12 +128,22 @@ Inherits from ProgressMonitor::Stringify::Fields::AbstractField.
 =item new( $hashRef )
 
 Configuration data:
-  decimals (default => 2)
-    The number of decimals on the percentage.
-  unknownCharacter (default => '?')
-    The character to use when the total is unknown.
-  fillCharacter (default => ' ')
-    The character to use for the space reserved for the 10 & 100 location when they are still 0. 
+
+=over 2
+
+=item decimals (default => 2)
+
+The number of decimals on the percentage.
+
+=item unknownCharacter (default => '?')
+
+The character to use when the total is unknown.
+
+=item fillCharacter (default => ' ')
+
+The character to use for the space reserved for the 10 & 100 location when they are still 0. 
+
+=back
 
 =back
 

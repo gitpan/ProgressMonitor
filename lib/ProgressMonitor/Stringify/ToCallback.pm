@@ -113,17 +113,25 @@ Inherits from ProgressMonitor::Stringify::AbstractMonitor.
 =item new( $hashRef )
 
 Configuration data:
-  tickCallback
-    A code reference to an anonymous sub. For each rendering tick, it will be called
-    with the rendered string as the argument. The return value will be used to 
-    set the cancellation status.
-  messageCallback
-    A code reference that will be called specifically with the current message.
-    Note that setting this changes the behavior of tickCallback; normally,
-    tickCallback will receive the rendered string including any message.
-    However, by setting messageCallback, the message will be skipped during
-    rendition of the ordinary fields. Also, if this is set, the strategy used
-    is of no importance.
+
+=over 2
+
+=item tickCallback
+
+A code reference to an anonymous sub. For each rendering tick, it will be called
+with the rendered string as the argument. The return value will be used to 
+set the cancellation status.
+
+=item messageCallback
+
+A code reference that will be called specifically with the current message.
+Note that setting this changes the behavior of tickCallback; normally,
+tickCallback will receive the rendered string including any message.
+However, by setting messageCallback, the message will be skipped during
+rendition of the ordinary fields. Also, if this is set, the strategy used
+is of no importance.
+
+=back
 
 =back
 

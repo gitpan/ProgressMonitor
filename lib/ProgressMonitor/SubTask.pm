@@ -244,10 +244,18 @@ Inherits from AbstractStatefulMonitor.
 =item new( $hashRef )
 
 Configuration data:
-  parent
-    The parent monitor.
-  parentTicks
-    The number of ticks to use from the parent.
+
+=over 2
+
+=item parent
+
+The parent monitor.
+
+=item parentTicks
+
+The number of ticks to use from the parent.
+
+=back
 
 =back
 

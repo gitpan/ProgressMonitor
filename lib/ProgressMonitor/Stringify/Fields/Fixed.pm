@@ -89,8 +89,14 @@ Inherits from ProgressMonitor::Stringify::Fields::AbstractField.
 =item new( $hashRef )
 
 Configuration data:
-  text (default => ' ')
-    The text to display. 
+
+=over 2
+
+=item text (default => ' ')
+
+The text to display. 
+
+=back
 
 =back
 

@@ -317,38 +317,66 @@ through the use of 'fields' (see the L<Fields> packages).
 =item _new( $hashRef, $package )
 
 Configuration data:
-  maxWidth (default => 79)
-    The monitor should have this maxWidth. The actual width used may be less. This
-    depends on the fields it uses; specifically, if dynamic fields are used, they
-    will be given width until all is used or until the dynamic fields themselves 
-    have reached their maxWidth if any.
-  fields (default => [])
-    An array ref with field instances.
-  messageStrategy
-    An identifiers that describes how messages should be inserted into the
-    rendition:
-      none     Not surprisingly, this suppresses message presentation.
-      overlay  This will cause the message to overlay one or more of the other
-               fields, so as to keep things on one line. This setting will work
-               in conjunction with messageTimeout, messageOverlayStartField and
-               messageOverlayEndField.
-      newline  This will cause the message and a newline to be inserted in front
-               of the regular rendition, causing the running rendition to be
-               'pushed' forward. This is the default.
-  messageFiller
-    If the message is too short for the allotted space, it will be filled with
-    this character. Defaults to <space>.
-  messageTimeout
-    This is only relevant for the 'overlay' strategy. If the code doesn't
-    explicitly set the message to undef/blank, the timeout will automatically
-    remove it. The default is 3 seconds. Set to -1 for infinite.
-  messageOverlayStartField
-  messageOverlayEndField
-    Together these define the starting and ending field number that the message
-    should overlay. This defaults to 'all fields'.
-    
+
+=over 2
+
+=item maxWidth (default => 79)
+
+The monitor should have this maxWidth. The actual width used may be less. This
+depends on the fields it uses; specifically, if dynamic fields are used, they
+will be given width until all is used or until the dynamic fields themselves 
+have reached their maxWidth if any.
+
 Throws X::ProgressMonitor::InsufficientWidth if the maxWidth is to small to 
 handle the minimum requirements for all the fields.
+
+=item fields (default => [])
+
+An array ref with field instances.
+
+=item messageStrategy (default => newline)
+
+An identifiers that describes how messages should be inserted into the
+rendition:
+
+=over 2
+
+=item none
+
+Not surprisingly, this suppresses message presentation.
+
+=item overlay
+
+This will cause the message to overlay one or more of the other
+fields, so as to keep things on one line. This setting will work
+in conjunction with messageTimeout, messageOverlayStartField and
+messageOverlayEndField.
+
+=item newline
+
+This will cause the message and a newline to be inserted in front
+of the regular rendition, causing the running rendition to be
+'pushed' forward.
+
+=back
+
+=item messageFiller (default => ' ')
+
+If the message is too short for the allotted space, it will be filled with
+this character. Defaults to <space>.
+
+=item messageTimeout (default => 3 seconds)
+
+This is only relevant for the 'overlay' strategy. If the code doesn't
+explicitly set the message to undef/blank, the timeout will automatically
+remove it. Set to -1 for infinite.
+
+=item messageOverlayStartField, messageOverlayEndField (defaults => all fields)
+
+Together these define the starting and ending field number that the message
+should overlay. This defaults to 'all fields'.
+
+=back
 
 =item _toString
 

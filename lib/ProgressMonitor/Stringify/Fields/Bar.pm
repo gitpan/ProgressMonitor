@@ -214,32 +214,52 @@ Inherits from ProgressMonitor::Stringify::Fields::AbstractDynamicField.
 =item new( $hashRef )
 
 Configuration data:
-  emptyCharacter (default => '.')
-    The character that should be used to indicate an empty location in the bar.
-  fillCharacter (default => '#')
-    The character that should be used to indicate a full location in the bar.
-  leftWall (default => '[')
-    The string that should be used to indicate the left wall of the bar. This can
-    be set to an empty string if you don't want a wall.
-  rightWall (default => ']')
-    The string that should be used to indicate the right wall of the bar. This can
-    be set to an empty string if you don't want a wall.
-  idleTraveller (default => '==>')
-    The string that should be used as a moving piece in order to indicate progress
-    for totals that are unknown.
-  idleLeftSpace (default => 1)
-    Amount of characters that should be allocated to the left of the idleTraveller.
-    This is necessary to insure that the idleTraveller has at least some room to travel
-    in.  
-  idleLeftRight (default => 1)
-    Amount of characters that should be allocated to the right of the idleTraveller.
-    This is necessary to insure that the idleTraveller has at least some room to travel
-    in.
-  idleSpinnerSequence (default => ['-', '\\', '|', '/'])
-    This should be a reference to a list of characters that should be used in sequence
-    for ticks that doesn't advance the bar, but we still want to show that something
-    is happening. If you do not wish this to happen at all, set to a single element list
-    with the fillCharacter.
+
+=over 2
+
+=item emptyCharacter (default => '.')
+
+The character that should be used to indicate an empty location in the bar.
+
+=item fillCharacter (default => '#')
+
+The character that should be used to indicate a full location in the bar.
+
+=item leftWall (default => '[')
+
+The string that should be used to indicate the left wall of the bar. This can
+be set to an empty string if you don't want a wall.
+
+=item rightWall (default => ']')
+
+The string that should be used to indicate the right wall of the bar. This can
+be set to an empty string if you don't want a wall.
+
+=item idleTraveller (default => '==>')
+
+The string that should be used as a moving piece in order to indicate progress
+for totals that are unknown.
+
+=item idleLeftSpace (default => 1)
+
+Amount of characters that should be allocated to the left of the idleTraveller.
+This is necessary to insure that the idleTraveller has at least some room to travel
+in.  
+
+=item idleLeftRight (default => 1)
+
+Amount of characters that should be allocated to the right of the idleTraveller.
+This is necessary to insure that the idleTraveller has at least some room to travel
+in.
+
+=item idleSpinnerSequence (default => ['-', '\\', '|', '/'])
+
+This should be a reference to a list of characters that should be used in sequence
+for ticks that doesn't advance the bar, but we still want to show that something
+is happening. If you do not wish this to happen at all, set to a single element list
+with the fillCharacter.
+
+=back
 
 =back
 

@@ -1,9 +1,9 @@
-ProgressMonitor 0.02
+ProgressMonitor
 
-This is the second release of ProgressMonitor, a generic, flexible and
-extendable OO framework for using the notion of giving feedback (to a user,
-commonly) that a long-running task is actually doing something (and preferably
-tell how much of the task remains).
+This is a release of ProgressMonitor, a generic, flexible and extendable OO
+framework for using the notion of giving feedback (to a user, commonly) that a
+long-running task is actually doing something (and preferably tell how much of
+the task remains).
 
 A piece of code that does a task declares that it takes a progress monitor
 instance. When/if given one, it will report progress in a defined and generic

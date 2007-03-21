@@ -151,10 +151,18 @@ some of its attributes as needed.
 The constructor, needs to be called by subclasses.
 
 Configuration data:
-  minWidth (default => 0)
-    The minimum width this field should use.
-  maxWidth
-    The maximum width this field should use.
+
+=over 2
+
+=item minWidth (default => 0)
+
+The minimum width this field should use.
+
+=item maxWidth
+
+The maximum width this field should use.
+
+=back
 
 =item _set_width( $newWidth )
 

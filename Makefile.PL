@@ -9,8 +9,8 @@ WriteMakefile(
 			  ABSTRACT_FROM => 'lib/ProgressMonitor.pm',
 			  PREREQ_PM     => {
 							'Test::More' => 0.64,
-							'classes' => 0.943,
+							'classes'    => 0.943,
 						   },
-			  dist  => {COMPRESS => 'gzip -9f', SUFFIX => 'gz',},
+			  dist  => {TARFLAGS => '-c -v --mode=777 -f', COMPRESS => 'gzip -9f', SUFFIX => 'gz',},
 			  clean => {FILES    => 'ProgressMonitor-*'},
 			 );
