@@ -41,25 +41,41 @@ sub render
 
 	local $|;
 	$| = 1;
-	
+
 	my $cfg    = $self->_get_cfg;
 	my $stream = $cfg->get_stream;
 	my $bs     = $self->{$ATTR_backspaces};
 	$bs = $self->{$ATTR_backspaces} = BACKSPACE x $self->get_width unless $bs;
 
-	# render and print - unless it's the final call, and we should wipe it
+	# render and print
 	#
-	if ($self->_get_state == STATE_DONE && $cfg->get_wipeAtEnd)
-	{
-		# first space it out, and then bs again to return
-		#
-		print $stream SPACE x $self->get_width;
-	}
-	else
-	{
-		print $stream $self->_toString;
-	}
+	print $stream $self->_toString;
 	print $stream $bs;
+	
+	if ($self->_get_state == STATE_DONE)
+	{
+		# run the end routine
+		#
+		my $atEndStrategy = $cfg->get_atEndStrategy;
+		if ($atEndStrategy eq 'wipe')
+		{
+			# space it out and return us to beginning
+			#
+			print $stream SPACE x $self->get_width;
+			print $stream $bs;
+		}
+		elsif ($atEndStrategy eq 'newline')
+		{
+			# get us to a new line
+			#
+			print $stream "\n";
+		}
+		else
+		{
+			# the strategy is 'none'...
+			#
+		}
+	}
 
 	return;
 }
@@ -73,24 +89,31 @@ use warnings;
 
 use Scalar::Util qw(openhandle);
 
-require ProgressMonitor::Stringify::AbstractMonitorConfiguration if 0;
-
 # Attributes
 #	stream (handle)
 #		This is the stream to write to. Defaults to '\*STDOUT'.
-#	wipeAtEnd (boolean)
-#		If this is true, the rendered data will be cleared on completion
+#       The stream must be able to handle backspacing in order to properly
+#       show the fields. Also, this presumes things won't go awry if the
+#		width set exceeds the streams 'display width' (e.g. a terminal window),
+#       causing linewrapping to occur.
+#	atEndStrategy (string, default => 'newline')
+#       'wipe'   : the rendered data will be cleared on completion, cursor
+#                  at the point where it started.
+#       'newline': the rendered data will be left, a newline positions the
+#                  cursor on next line.
+#       'none'   : the rendered data will be left, the cursor remains at the
+#                  end
 #
 use classes
   extends => 'ProgressMonitor::Stringify::AbstractMonitorConfiguration',
-  attrs   => ['stream', 'wipeAtEnd'],
+  attrs   => ['stream', 'atEndStrategy'],
   ;
 
 sub defaultAttributeValues
 {
 	my $self = shift;
 
-	return {%{$self->SUPER::defaultAttributeValues()}, stream => \*STDOUT, wipeAtEnd => 1};
+	return {%{$self->SUPER::defaultAttributeValues()}, stream => \*STDOUT, atEndStrategy => 'newline'};
 }
 
 sub checkAttributeValues
@@ -100,6 +123,9 @@ sub checkAttributeValues
 	$self->SUPER::checkAttributeValues();
 
 	X::Usage->throw("not an open handle") unless openhandle($self->get_stream);
+
+	my $aes = $self->get_atEndStrategy;
+	X::Usage->throw("invalid value for atEndStrategy: $aes") unless $aes =~ /^(?:none|wipe|newline)$/;
 
 	return;
 }
@@ -146,11 +172,30 @@ Configuration data:
 
 =item stream (default => \*STDOUT)
 
-The stream to where the stringified feedback should go.
+This is the stream to write to. Defaults to '\*STDOUT'.
 
-=item wipeAtEnd (default => 1)
+The stream must be able to handle backspacing in order to properly
+show the fields. Also, this presumes things won't go awry if the
+width set exceeds the streams 'display width' (e.g. a terminal window),
+causing linewrapping to occur.
 
-Whether the feedback should be wiped at the end.
+=item atEndStrategy (default => 'newline')
+
+=over 2
+
+=item wipe
+
+The rendered data will be cleared on completion, cursor at the point where it started.
+
+=item newline
+
+The rendered data will be left, a newline positions the cursor on next line.
+
+=item none
+
+The rendered data will be left, the cursor remains at the end.
+
+=back
 
 =back
 

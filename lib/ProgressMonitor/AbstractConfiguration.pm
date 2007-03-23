@@ -5,8 +5,6 @@ use strict;
 
 use Scalar::Util qw(blessed);
 
-require X::Usage if 0;
-
 # declare the class
 #
 use classes

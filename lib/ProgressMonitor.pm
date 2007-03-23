@@ -3,7 +3,7 @@ package ProgressMonitor;
 use warnings;
 use strict;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 # Here follows the closest we come to describing an interface.
 #
@@ -27,7 +27,7 @@ ProgressMonitor - a flexible and configurable framework for providing feedback o
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =head1 SYNOPSIS
 

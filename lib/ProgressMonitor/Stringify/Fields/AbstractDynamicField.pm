@@ -63,8 +63,6 @@ package ProgressMonitor::Stringify::Fields::AbstractDynamicFieldConfiguration;
 use strict;
 use warnings;
 
-require ProgressMonitor::Stringify::Fields::AbstractFieldConfiguration if 0;
-
 # Attributes:
 #	minWidth
 # 		The minimum width the field should use. This may however be too small

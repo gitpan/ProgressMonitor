@@ -203,8 +203,6 @@ use warnings;
 
 use Scalar::Util qw(blessed);
 
-require ProgressMonitor::AbstractStatefulMonitorConfiguration if 0;
-
 # Attributes:
 #	maxWidth
 #		The maximum width this monitor can occupy altogether.

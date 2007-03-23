@@ -5,7 +5,6 @@ use strict;
 
 use ProgressMonitor::Exceptions;
 require ProgressMonitor::Stringify::Fields::AbstractDynamicField if 0;
-require X::ProgressMonitor::InsufficientWidth if 0;
 
 # Attributes:
 #	innerWidth
@@ -132,8 +131,6 @@ package ProgressMonitor::Stringify::Fields::BarConfiguration;
 
 use strict;
 use warnings;
-
-require ProgressMonitor::Stringify::Fields::AbstractDynamicFieldConfiguration if 0;
 
 use classes
   extends => 'ProgressMonitor::Stringify::Fields::AbstractDynamicFieldConfiguration',

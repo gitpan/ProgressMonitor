@@ -106,8 +106,6 @@ package ProgressMonitor::Stringify::Fields::CounterConfiguration;
 use strict;
 use warnings;
 
-require ProgressMonitor::Stringify::Fields::AbstractFieldConfiguration if 0;
-
 # Attributes
 #	digits	(integer)
 #		The number of digits in the counter field (and the total)

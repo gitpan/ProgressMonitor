@@ -134,8 +134,6 @@ use warnings;
 
 use Scalar::Util qw(blessed);
 
-require ProgressMonitor::AbstractStatefulMonitorConfiguration if 0;
-
 # The configuration class - ensure to extend in the parallel hierarchy as the main class
 #
 # Attributes:

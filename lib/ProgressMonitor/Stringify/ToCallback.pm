@@ -49,8 +49,6 @@ package ProgressMonitor::Stringify::ToCallbackConfiguration;
 use strict;
 use warnings;
 
-require ProgressMonitor::Stringify::AbstractMonitorConfiguration if 0;
-
 # Attributes:
 #	callback (code ref)
 #		The callback will be called with the rendered string and should return a

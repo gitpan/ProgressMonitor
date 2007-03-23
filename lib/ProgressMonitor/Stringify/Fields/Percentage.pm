@@ -61,8 +61,6 @@ package ProgressMonitor::Stringify::Fields::PercentageConfiguration;
 use strict;
 use warnings;
 
-require ProgressMonitor::Stringify::Fields::AbstractFieldConfiguration if 0;
-
 # Attributes
 #	decimals
 #		The number of decimals on the percentage

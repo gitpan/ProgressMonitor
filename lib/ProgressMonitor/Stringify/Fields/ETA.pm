@@ -150,8 +150,6 @@ package ProgressMonitor::Stringify::Fields::ETAConfiguration;
 use strict;
 use warnings;
 
-require ProgressMonitor::Stringify::Fields::AbstractFieldConfiguration if 0;
-
 no strict 'refs';
 use classes
   extends => 'ProgressMonitor::Stringify::Fields::AbstractFieldConfiguration',

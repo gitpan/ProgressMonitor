@@ -7,8 +7,6 @@ use ProgressMonitor::Exceptions;
 use ProgressMonitor::State;
 
 require ProgressMonitor if 0;
-require X::ProgressMonitor::InvalidState if 0;
-require X::ProgressMonitor::TooManyTicks if 0;
 
 use classes
   extends       => 'ProgressMonitor',
@@ -48,7 +46,9 @@ sub end
 	$self->__shiftState(STATE_ACTIVE, STATE_DONE);
 
 	# ensure a final rendering is performed with the (possibly) fixed up tick value
+	# also clear any message
 	#
+	$self->{$ATTR_message} = undef;
 	$self->{$ATTR_ticks} = $self->{$ATTR_totalTicks};
 	$self->render;
 
@@ -266,8 +266,6 @@ package ProgressMonitor::AbstractStatefulMonitorConfiguration;
 
 use strict;
 use warnings;
-
-require ProgressMonitor::AbstractConfiguration if 0;
 
 # The configuration class for the above class
 #

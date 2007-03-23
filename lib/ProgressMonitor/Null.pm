@@ -35,8 +35,6 @@ package ProgressMonitor::NullConfiguration;
 use strict;
 use warnings;
 
-require ProgressMonitor::AbstractStatefulMonitorConfiguration if 0;
-
 use classes
   extends => 'ProgressMonitor::AbstractStatefulMonitorConfiguration',
   ;

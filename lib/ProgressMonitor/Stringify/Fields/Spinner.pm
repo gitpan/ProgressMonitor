@@ -48,8 +48,6 @@ package ProgressMonitor::Stringify::Fields::SpinnerConfiguration;
 use strict;
 use warnings;
 
-require ProgressMonitor::Stringify::Fields::AbstractFieldConfiguration if 0;
-
 # Attributes
 #	sequence (array ref with strings)
 #		For every rendition the next string will be printed in a round-robin

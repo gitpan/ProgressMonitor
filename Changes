@@ -10,3 +10,7 @@ Revision history for ProgressMonitor
 0.03	2007-03-21
         Minor fixes to adjust the tar building (my gnuwin32 tar creates weird
         permissions in the archive).
+
+0.04	2007-03-23
+		Replaced wipeAtEnd with atEndStrategy
+		Clear any message when ending

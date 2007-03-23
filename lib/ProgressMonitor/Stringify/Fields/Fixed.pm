@@ -42,8 +42,6 @@ package ProgressMonitor::Stringify::Fields::FixedConfiguration;
 use strict;
 use warnings;
 
-require ProgressMonitor::Stringify::Fields::AbstractFieldConfiguration if 0;
-
 # Attributes
 #	text
 #		Set to any text that should be rendered
