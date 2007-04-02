@@ -3,11 +3,13 @@ package ProgressMonitor::Null;
 use warnings;
 use strict;
 
-require ProgressMonitor::AbstractStatefulMonitor if 0;
+require ProgressMonitor if 0;
 
 use classes
-  extends => 'ProgressMonitor::AbstractStatefulMonitor',
+  extends => 'ProgressMonitor',
   new     => 'new',
+  methods => [ 'render' ],
+  class_attrs_pr => [ 'instance' ],
   ;
 
 sub new
@@ -15,11 +17,57 @@ sub new
 	my $class = shift;
 	my $cfg   = shift;
 
-	# don't pass any cfg; just discard it
-	#
-	my $self = $class->SUPER::_new(undef, $CLASS);
+	no strict 'refs';
+	unless ($$CLASS_ATTR_instance)
+		{
+		# don't pass any cfg; just discard it
+		#
+		$$CLASS_ATTR_instance = classes::new_only($class);
+		}
 
-	return $self;
+	return $$CLASS_ATTR_instance;
+}
+
+sub begin
+{
+	# do nothing
+	#
+}
+
+sub end
+{
+	# do nothing
+	#
+}
+
+sub isCanceled
+{
+	# do nothing
+	#
+}
+
+sub prepare
+{
+	# do nothing
+	#
+}
+
+sub setCanceled
+{
+	# do nothing
+	#
+}
+
+sub setMessage    
+{
+	# do nothing
+	#
+}
+
+sub tick
+{
+	# do nothing
+	#
 }
 
 sub render
@@ -36,7 +84,7 @@ use strict;
 use warnings;
 
 use classes
-  extends => 'ProgressMonitor::AbstractStatefulMonitorConfiguration',
+  extends => 'ProgressMonitor::AbstractConfiguration',
   ;
 
 ############################

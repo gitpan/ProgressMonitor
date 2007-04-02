@@ -24,12 +24,16 @@ my $work = rand(10) + 3;
 #
 my $monitor = ProgressMonitor::Stringify::ToStream->new({fields => [ProgressMonitor::Stringify::Fields::Counter->new,],});
 
-# All monitors must be told to 'prepare'.
+# All monitors must be told to 'prepare'...unless we have no preparatory work to
+# do. In that case we can skip the prepare() call and go directly to begin()
 # 
 # Monitors in the 'prepare' can be 'ticked' if desired; this state is intended
 # for the common situation of first finding out the amount to do which typically
 # can take a non-negligible amount of time, but little in comparison to the 
-# full work. Here we have no amount to compute, so we just prepare and move on
+# full work.
+#
+# Here we have no amount to compute, so we just prepare and move on (and we
+# could skip the call altogether if we wished).
 #
 $monitor->prepare();
 

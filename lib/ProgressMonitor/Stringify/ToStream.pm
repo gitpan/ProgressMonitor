@@ -51,7 +51,7 @@ sub render
 	#
 	print $stream $self->_toString;
 	print $stream $bs;
-	
+
 	if ($self->_get_state == STATE_DONE)
 	{
 		# run the end routine
@@ -89,6 +89,10 @@ use warnings;
 
 use Scalar::Util qw(openhandle);
 
+my $tsPlatform = $^O eq 'MSWin32' ? 'Win32' : 'Unix';
+eval "use Term::Size::$tsPlatform";
+die("Platform specific use failed: $@") if $@;
+
 # Attributes
 #	stream (handle)
 #		This is the stream to write to. Defaults to '\*STDOUT'.
@@ -122,7 +126,18 @@ sub checkAttributeValues
 
 	$self->SUPER::checkAttributeValues();
 
-	X::Usage->throw("not an open handle") unless openhandle($self->get_stream);
+	my $stream = $self->get_stream;
+	X::Usage->throw("not an open handle") unless openhandle($stream);
+
+	# try to actually get the columns for the given stream and adapt the maxwidth to it
+	# if it's not explicitly set
+	#
+	if (!$self->get_maxWidth)
+	{
+		my $cols;
+		eval "\$cols = Term::Size::${tsPlatform}::chars \$stream;";
+		$self->set_maxWidth($cols - 1) if ($cols && !$@);
+	}
 
 	my $aes = $self->get_atEndStrategy;
 	X::Usage->throw("invalid value for atEndStrategy: $aes") unless $aes =~ /^(?:none|wipe|newline)$/;
@@ -175,9 +190,8 @@ Configuration data:
 This is the stream to write to. Defaults to '\*STDOUT'.
 
 The stream must be able to handle backspacing in order to properly
-show the fields. Also, this presumes things won't go awry if the
-width set exceeds the streams 'display width' (e.g. a terminal window),
-causing linewrapping to occur.
+show the fields. Unless the maxWidth is explicitly set, it will be 
+set by checking the stream using Term::Size(::<platform>).
 
 =item atEndStrategy (default => 'newline')
 

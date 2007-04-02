@@ -1,11 +1,12 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         ProgressMonitor
-version:      0.04
+version:      0.05
 version_from: lib/ProgressMonitor.pm
 installdirs:  site
 requires:
     classes:                       0.943
+    Term::Size::Win32:             0.207
     Test::More:                    0.64
 
 distribution_type: module

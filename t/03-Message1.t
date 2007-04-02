@@ -14,13 +14,13 @@ my @renderings = (
 				  "tick", "xyz.", "tick", "tick", "tick", "xyz.", "tick", "tick", "xyz.", "tick", "tick", "xyz.", "tick", "tick",
 				  "xyz.", "tick", "tick", "xyz.", "tick", "tick", "xyz.", "tick", "tick", "xyz.", "tick", "tick", "xyz.", "tick",
 				  "tick", "xyz.", "tick", "tick", "xyz.", "tick", "tick",
-				 );    
+				 );
 plan tests => scalar(@renderings);
 
 my $index = 0;
 my $cb = sub {
 	my $rendering = shift;
-	my $expected = $renderings[$index++];
+	my $expected  = $renderings[$index++];
 	if ($rendering eq $expected)
 	{
 		ok(1);
@@ -36,6 +36,7 @@ my $cb = sub {
 my $monitor =
   ProgressMonitor::Stringify::ToCallback->new(
 											  {
+											   maxWidth      => 79,
 											   fields        => [ProgressMonitor::Stringify::Fields::Fixed->new({text => "tick"})],
 											   tickCallback  => $cb,
 											   messageFiller => '.',

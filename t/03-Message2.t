@@ -19,7 +19,7 @@ runtest('none');
 sub runtest
 {
 	my $strategy = shift;
-	
+
 	my $cb = sub {
 		my $rendering = shift;
 		my $expected  = 'tick';
@@ -53,7 +53,8 @@ sub runtest
 	my $monitor =
 	  ProgressMonitor::Stringify::ToCallback->new(
 												  {
-												   fields => [ProgressMonitor::Stringify::Fields::Fixed->new({text => "tick"})],
+												   maxWidth => 79,
+												   fields   => [ProgressMonitor::Stringify::Fields::Fixed->new({text => "tick"})],
 												   tickCallback    => $cb,
 												   messageCallback => $mb,
 												   messageFiller   => '.',

@@ -154,7 +154,7 @@ sub defaultAttributeValues
 {
 	my $self = shift;
 
-	return {%{$self->SUPER::defaultAttributeValues()}, passMessageToParent => 1};
+	return {%{$self->SUPER::defaultAttributeValues()}, passMessageToParent => 0, parentTicks => 1};
 }
 
 sub checkAttributeValues
@@ -249,9 +249,13 @@ Configuration data:
 
 The parent monitor.
 
-=item parentTicks
+=item parentTicks (default => 1)
 
 The number of ticks to use from the parent.
+
+=item passMessageToParent (default => 0)
+
+Describes whether setMessage calls should be forwarded to the parent.
 
 =back
 

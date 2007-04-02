@@ -14,3 +14,11 @@ Revision history for ProgressMonitor
 0.04	2007-03-23
 		Replaced wipeAtEnd with atEndStrategy
 		Clear any message when ending
+
+0.05	2007-03-27
+		Made the Null monitor a singleton
+		Made passMessageToParent default to 0 and parentTicks to 1
+		Made it allowable to skip calling prepare() and go directly to begin()
+		The messageFiller can be blank/undef, causing partial overlay
+		Minor help text changes
+		messageStart/EndOverlayFields are now 1 based indices.

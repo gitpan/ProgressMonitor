@@ -28,13 +28,13 @@ sub render
 	# unless the message callback is set, then don't render message
 	# and pass that separately to the msg callback
 	#
-	my $cfg = $self->_get_cfg;
-	my $tcb = $cfg->get_tickCallback;
-	my $mcb = $cfg->get_messageCallback;
+	my $cfg    = $self->_get_cfg;
+	my $tcb    = $cfg->get_tickCallback;
+	my $mcb    = $cfg->get_messageCallback;
 	my $cancel = $tcb->($self->_toString($mcb ? 0 : 1));
 	if ($mcb)
 	{
-		my $msg = $self->_get_message; 
+		my $msg = $self->_get_message;
 		$mcb->($msg) if $msg;
 	}
 	$self->setCanceled($cancel) unless $self->isCanceled;
@@ -66,7 +66,7 @@ sub defaultAttributeValues
 			%{$self->SUPER::defaultAttributeValues()},
 			tickCallback => sub { X::Usage->throw("missing tickCallback"); 1; },
 			messageCallback => undef,
-		   };    
+		   };
 }
 
 sub checkAttributeValues
@@ -78,6 +78,8 @@ sub checkAttributeValues
 	X::Usage->throw("tickCallback is not a code ref") unless ref($self->get_tickCallback) eq 'CODE';
 	my $mcb = $self->get_messageCallback;
 	X::Usage->throw("messageCallback is not a code ref") if ($mcb && ref($mcb) ne 'CODE');
+
+	X::Usage->throw("maxWidth not set") unless $self->get_maxWidth;
 
 	return;
 }
@@ -109,6 +111,8 @@ Inherits from ProgressMonitor::Stringify::AbstractMonitor.
 =over 2
 
 =item new( $hashRef )
+
+Note that the maxWidth must be set explicitly.
 
 Configuration data:
 

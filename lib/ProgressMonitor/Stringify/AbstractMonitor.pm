@@ -172,19 +172,21 @@ sub _toString
 			else
 			{
 				# overlay
+				#
 				my $start_ovrfld = $cfg->get_messageOverlayStartField;
 				my $end_ovrfld   = $cfg->get_messageOverlayEndField;
 				my $start_ovrpos;
 				my $end_ovrpos;
 				my $offset = 0;
-				for (0 .. @$allFields - 1)
+				for (1 .. @$allFields)
 				{
 					$start_ovrpos = $offset if $start_ovrfld == $_;
-					$offset += $allFields->[$_]->get_width;
+					$offset += $allFields->[$_ - 1]->get_width;
 					$end_ovrpos = $offset if $end_ovrfld == $_;
 					last if ($start_ovrpos && $end_ovrpos);
 				}
-				my $len = $end_ovrpos - $start_ovrpos;
+				my $mf = $cfg->get_messageFiller;
+				my $len = $mf ? $end_ovrpos - $start_ovrpos : length($msg);
 				$msg .= $cfg->get_messageFiller x ($len - length($msg)) if ($len > length($msg));
 				substr($rendition, $start_ovrpos, $len) = $msg;
 			}
@@ -206,7 +208,6 @@ use Scalar::Util qw(blessed);
 # Attributes:
 #	maxWidth
 #		The maximum width this monitor can occupy altogether.
-#		Defaults to 79 for lack of better value, to fit in 80 chars
 #	fields
 #		An array of fields (or a single field if only one) that should be used
 #		A field instance can not be reused in the list!
@@ -241,10 +242,10 @@ sub defaultAttributeValues
 
 	return {
 			%{$self->SUPER::defaultAttributeValues()},
-			maxWidth                 => 79,
+			maxWidth                 => 0,
 			fields                   => [],
 			messageStrategy          => 'newline',
-			messageOverlayStartField => 0,
+			messageOverlayStartField => 1,
 			messageOverlayEndField   => undef,
 			messageFiller            => ' ',
 			messageTimeout           => 3,
@@ -280,18 +281,18 @@ sub checkAttributeValues
 
 	if ($ms eq 'overlay')
 	{
-		my $maxFieldNum = @$fields - 1;
+		my $maxFieldNum = @$fields;
 		$self->set_messageOverlayEndField($maxFieldNum) unless defined($self->get_messageOverlayEndField);
 
 		my $start = $self->get_messageOverlayStartField;
 		my $end   = $self->get_messageOverlayEndField;
-		X::Usage->throw("illegal overlay start field: $start") if ($start < 0 || $start > $maxFieldNum);
-		X::Usage->throw("illegal overlay end field: $start")
-		  if ($end < 0 || $end > $maxFieldNum || $end < $start);
+		X::Usage->throw("illegal overlay start field: $start") if ($start < 1 || $start > $maxFieldNum);
+		X::Usage->throw("illegal overlay end field: $end")
+		  if ($end < 1 || $end > $maxFieldNum || $end < $start);
 	}
 
 	my $mf = $self->get_messageFiller;
-	X::Usage->throw("messageFiller not a character: $mf") unless length($mf) == 1;
+	X::Usage->throw("messageFiller not a character: $mf") if length($mf) > 1;
 
 	return;
 }
@@ -361,7 +362,9 @@ of the regular rendition, causing the running rendition to be
 =item messageFiller (default => ' ')
 
 If the message is too short for the allotted space, it will be filled with
-this character. Defaults to <space>.
+this character. Can be set to the empty string or undef to skip filling,
+causing a 'partial overlay', i.e. just as much as the string is, which 
+obviously can give a confusing mixed message with the underlying field.
 
 =item messageTimeout (default => 3 seconds)
 

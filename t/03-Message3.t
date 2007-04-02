@@ -42,6 +42,7 @@ my $cb = sub {
 my $monitor =
   ProgressMonitor::Stringify::ToCallback->new(
 											  {
+											   maxWidth      => 79,
 											   fields        => [ProgressMonitor::Stringify::Fields::Fixed->new({text => "tick"})],
 											   tickCallback  => $cb,
 											   messageFiller => '.',

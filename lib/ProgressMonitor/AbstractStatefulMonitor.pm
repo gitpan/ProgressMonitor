@@ -21,6 +21,12 @@ sub begin
 	my $self       = shift;
 	my $totalTicks = shift;
 
+	# it is allowed to call begin directly if there's no preparatory
+	# work to be done - so we call prepare if not already done
+	#
+	my $state = $self->_get_state;
+	$self->prepare if $state == STATE_NEW;
+	
 	# enter the active state, signalling 'prepare complete'
 	#
 	$self->__shiftState(STATE_PREPARING, STATE_ACTIVE);
