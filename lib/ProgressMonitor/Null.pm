@@ -8,7 +8,17 @@ require ProgressMonitor if 0;
 use classes
   extends => 'ProgressMonitor',
   new     => 'new',
-  methods => [ 'render' ],
+  methods => {
+			  begin           => 'EMPTY',
+			  end             => 'EMPTY',
+			  isCanceled      => 'EMPTY',
+			  prepare         => 'EMPTY',
+			  setCanceled     => 'EMPTY',
+			  setMessage      => 'EMPTY',
+			  setErrorMessage => 'EMPTY',
+			  tick            => 'EMPTY',
+			  subMonitor      => 'subMonitor',
+			 },
   class_attrs_pr => [ 'instance' ],
   ;
 
@@ -28,52 +38,10 @@ sub new
 	return $$CLASS_ATTR_instance;
 }
 
-sub begin
+sub subMonitor
 {
-	# do nothing
-	#
-}
-
-sub end
-{
-	# do nothing
-	#
-}
-
-sub isCanceled
-{
-	# do nothing
-	#
-}
-
-sub prepare
-{
-	# do nothing
-	#
-}
-
-sub setCanceled
-{
-	# do nothing
-	#
-}
-
-sub setMessage    
-{
-	# do nothing
-	#
-}
-
-sub tick
-{
-	# do nothing
-	#
-}
-
-sub render
-{
-	# do nothing
-	#
+	no strict 'refs';
+	return $$CLASS_ATTR_instance;
 }
 
 ###

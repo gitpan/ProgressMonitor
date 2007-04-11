@@ -91,7 +91,7 @@ sub render
 
 		# in case the filler is the same as last time (and we're not full), twirl the spinner
 		#
-		if ($ratio && $ratio < 1 && $filler eq $self->{$ATTR_lastFiller})
+		if ($ratio < 1 && $filler eq $self->{$ATTR_lastFiller})
 		{
 			my $lf  = length($filler);
 			my $seq = $cfg->get_idleSpinnerSequence;

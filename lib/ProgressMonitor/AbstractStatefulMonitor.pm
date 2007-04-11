@@ -102,19 +102,8 @@ sub setMessage
 	my $self = shift;
 	my $msg = shift;
 	
-	if ($msg)
-	{
-		# replace embedded newlines/carriage returns/tabs with plain spaces and
-		# then trim edges
-		#
-		$msg =~ s#[\n\r\t]# #g;
-		$msg =~ s#^\s*##;
-		$msg =~ s#\s*$##;
-		$msg = undef if length($msg) == 0;
-	}
-	
-	$self->{$ATTR_message} = $msg;
-	
+	$self->_set_message($msg);
+		
 	$self->render;
 	
 	return;	
@@ -198,6 +187,25 @@ sub _get_message
 	my $self = shift;
 	
 	return $self->{$ATTR_message};
+}
+
+sub _set_message
+{
+	my $self = shift;
+	my $msg = shift;
+	
+	if ($msg)
+	{
+		# replace embedded newlines/carriage returns/tabs with plain spaces and
+		# then trim edges
+		#
+		$msg =~ s#[\n\r\t]# #g;
+		$msg =~ s#^\s*##;
+		$msg =~ s#\s*$##;
+		$msg = undef if length($msg) == 0;
+	}
+	
+	$self->{$ATTR_message} = $msg;
 }
 
 # the protected ctor

@@ -22,3 +22,15 @@ Revision history for ProgressMonitor
 		The messageFiller can be blank/undef, causing partial overlay
 		Minor help text changes
 		messageStart/EndOverlayFields are now 1 based indices.
+
+0.06	2007-04-05
+		- Fixed a loophole; if maxwidth not set we must fall back to hardcoded
+		  79 unless the Term::Size... stuff returns something worthwhile
+		- Added a convenience subMonitor method to the interface; makes it
+		  cleaner to instantiate a SubTask monitor
+		- Added a setErrorMessage method and associated support
+		- Fixed bug where the Bar never indicated empty progress when it was
+		  blank
+		- Mumbo jumbo with getting stuff printed right when backspacing 
+		  before or after - 'backspaceAfterRender'
+		

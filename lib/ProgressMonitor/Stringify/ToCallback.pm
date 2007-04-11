@@ -42,6 +42,17 @@ sub render
 	return;
 }
 
+sub setErrorMessage
+{
+	my $self = shift;
+	my $msg = shift;
+	
+	my $cfg    = $self->_get_cfg;
+	my $emcb    = $cfg->get_errorMessageCallback;
+	
+	$emcb->($msg) if $emcb;
+}
+
 ###
 
 package ProgressMonitor::Stringify::ToCallbackConfiguration;
@@ -55,7 +66,7 @@ use warnings;
 # 		boolean, which will be used to set the cancellation status with.
 use classes
   extends => 'ProgressMonitor::Stringify::AbstractMonitorConfiguration',
-  attrs   => ['tickCallback', 'messageCallback'],
+  attrs   => ['tickCallback', 'messageCallback', 'errorMessageCallback'],
   ;
 
 sub defaultAttributeValues
@@ -66,6 +77,7 @@ sub defaultAttributeValues
 			%{$self->SUPER::defaultAttributeValues()},
 			tickCallback => sub { X::Usage->throw("missing tickCallback"); 1; },
 			messageCallback => undef,
+			errorMessageCallback => undef,
 		   };
 }
 
@@ -76,8 +88,12 @@ sub checkAttributeValues
 	$self->SUPER::checkAttributeValues();
 
 	X::Usage->throw("tickCallback is not a code ref") unless ref($self->get_tickCallback) eq 'CODE';
+
 	my $mcb = $self->get_messageCallback;
 	X::Usage->throw("messageCallback is not a code ref") if ($mcb && ref($mcb) ne 'CODE');
+
+	my $emcb = $self->get_errorMessageCallback;
+	X::Usage->throw("errorMessageCallback is not a code ref") if ($emcb && ref($emcb) ne 'CODE');
 
 	X::Usage->throw("maxWidth not set") unless $self->get_maxWidth;
 
@@ -132,6 +148,10 @@ tickCallback will receive the rendered string including any message.
 However, by setting messageCallback, the message will be skipped during
 rendition of the ordinary fields. Also, if this is set, the strategy used
 is of no importance.
+
+=item errorMessageCallback
+
+A code reference that will be called with the current error message.
 
 =back
 

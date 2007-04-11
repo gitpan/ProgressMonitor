@@ -18,6 +18,8 @@ use classes
   throws        => ['X::ProgressMonitor::InsufficientWidth',],
   ;
 
+use ProgressMonitor::SubTask;
+
 sub _new
 {
 	my $class  = shift;
@@ -109,6 +111,15 @@ sub setMessage
 	return $self->SUPER::setMessage($msg);
 }
 
+sub subMonitor
+{
+	my $self = shift;
+	my $subCfg = shift || {};
+	
+	$subCfg->{parent} = $self;
+	return ProgressMonitor::SubTask->new($subCfg);
+}
+
 ### protected
 
 sub _get_message
@@ -118,7 +129,7 @@ sub _get_message
 	my $now = time;
 	if (defined($self->{$ATTR_msgto}))
 	{
-		$self->setMessage(undef) if ($self->{$ATTR_msgto} <= $now);
+		$self->_set_message(undef) if ($self->{$ATTR_msgto} <= $now)
 	}
 	else
 	{
@@ -127,6 +138,16 @@ sub _get_message
 	}
 
 	return $self->SUPER::_get_message;
+}
+
+sub _set_message
+{
+	my $self = shift;
+	my $msg = shift;
+
+	$self->{$ATTR_msgto} = undef;
+	
+	return $self->SUPER::_set_message($msg);
 }
 
 # helper method to call each field and render a complete line
@@ -166,8 +187,8 @@ sub _toString
 			if ($ms eq 'newline')
 			{
 				$msg .= $cfg->get_messageFiller x ($w - length($msg)) if ($w > length($msg));
-				$rendition = sprintf("%*.*s\n%s", $w, $w, $msg, $rendition);
-				$self->setMessage(undef);
+				$rendition = sprintf("%*.*s\n%s", $w, $w, "$msg", $rendition);
+				$self->_set_message(undef);
 			}
 			else
 			{

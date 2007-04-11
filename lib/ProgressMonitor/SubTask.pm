@@ -91,12 +91,23 @@ sub setMessage
 {
 	my $self = shift;
 
+	my $ret;
+	
 	# propagate this to the parent if we're set that way
 	#
 	my $cfg = $self->_get_cfg;
-	$cfg->get_parent->setMessage(shift()) if $cfg->get_passMessageToParent;
+	$ret = $cfg->get_parent->setMessage(shift()) if $cfg->get_passMessageToParent;
 	
-	return $self->_get_cfg->get_parent->setCanceled(@_);
+	return $ret;
+}
+
+sub setErrorMessage
+{
+	my $self = shift;
+
+	# propagate this to the parent
+	#
+	return $self->_get_cfg->get_parent->setErrorMessage(@_);
 }
 
 sub tick
@@ -123,6 +134,15 @@ sub render
 	# just trap any calls by the super class - rendering is done by the parent
 	# when it gets 'tick' calls from us
 	#
+}
+
+sub subMonitor
+{
+	my $self = shift;
+	my $subCfg = shift || {};
+	
+	$subCfg->{parent} = $self;
+	return ProgressMonitor::SubTask->new($subCfg);
 }
 
 ###

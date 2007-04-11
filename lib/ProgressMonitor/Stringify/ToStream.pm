@@ -18,7 +18,7 @@ require ProgressMonitor::Stringify::AbstractMonitor if 0;
 use classes
   extends  => 'ProgressMonitor::Stringify::AbstractMonitor',
   new      => 'new',
-  attrs_pr => ['backspaces',],
+  attrs_pr => ['backspaces', 'hasRendered'],
   ;
 
 sub new
@@ -31,7 +31,9 @@ sub new
 	# initialize the rest
 	#
 	$self->{$ATTR_backspaces} = undef;
+	$self->{$ATTR_hasRendered} = 0;
 
+$DB::single=1;
 	return $self;
 }
 
@@ -39,18 +41,24 @@ sub render
 {
 	my $self = shift;
 
-	local $|;
-	$| = 1;
+	local $| = 1;
 
-	my $cfg    = $self->_get_cfg;
-	my $stream = $cfg->get_stream;
 	my $bs     = $self->{$ATTR_backspaces};
 	$bs = $self->{$ATTR_backspaces} = BACKSPACE x $self->get_width unless $bs;
 
+	my $cfg    = $self->_get_cfg;
+	my $stream = $cfg->get_stream;
+	my $bsAfter = $cfg->get_backspaceAfterRender;
 	# render and print
 	#
-	print $stream $self->_toString;
-	print $stream $bs;
+	if ($self->{$ATTR_hasRendered} && !$bsAfter)
+	{
+		print $stream $bs ;
+	}
+	my $s = $self->_toString;
+	print $stream $s;
+	print $stream $bs if $bsAfter;
+	$self->{$ATTR_hasRendered} = 1;
 
 	if ($self->_get_state == STATE_DONE)
 	{
@@ -61,6 +69,7 @@ sub render
 		{
 			# space it out and return us to beginning
 			#
+			print $stream $bs unless $bsAfter;
 			print $stream SPACE x $self->get_width;
 			print $stream $bs;
 		}
@@ -78,6 +87,18 @@ sub render
 	}
 
 	return;
+}
+
+sub setErrorMessage
+{
+	my $self = shift;
+	my $msg = shift;
+	
+	my $cfg    = $self->_get_cfg;
+	my $stream = $cfg->get_stream;
+	print $stream "\n$msg\n";
+	
+	$self->render;
 }
 
 ###
@@ -107,17 +128,20 @@ die("Platform specific use failed: $@") if $@;
 #                  cursor on next line.
 #       'none'   : the rendered data will be left, the cursor remains at the
 #                  end
+#	backspaceAfterRender (boolean, default => 0)
+#       Whether the cursor should be backspaced to the start of the render or
+#       left at the end of the render
 #
 use classes
   extends => 'ProgressMonitor::Stringify::AbstractMonitorConfiguration',
-  attrs   => ['stream', 'atEndStrategy'],
+  attrs   => ['stream', 'atEndStrategy', 'backspaceAfterRender'],
   ;
 
 sub defaultAttributeValues
 {
 	my $self = shift;
 
-	return {%{$self->SUPER::defaultAttributeValues()}, stream => \*STDOUT, atEndStrategy => 'newline'};
+	return {%{$self->SUPER::defaultAttributeValues()}, stream => \*STDOUT, atEndStrategy => 'newline', backspaceAfterRender => 0};
 }
 
 sub checkAttributeValues
@@ -130,13 +154,13 @@ sub checkAttributeValues
 	X::Usage->throw("not an open handle") unless openhandle($stream);
 
 	# try to actually get the columns for the given stream and adapt the maxwidth to it
-	# if it's not explicitly set
+	# if it's not explicitly set - failing this, fall back to a hardcoded 79...
 	#
 	if (!$self->get_maxWidth)
 	{
 		my $cols;
 		eval "\$cols = Term::Size::${tsPlatform}::chars \$stream;";
-		$self->set_maxWidth($cols - 1) if ($cols && !$@);
+		$self->set_maxWidth(($cols && !$@) ? $cols - 1 : 79);
 	}
 
 	my $aes = $self->get_atEndStrategy;

@@ -5,20 +5,22 @@ use strict;
 
 use 5.8.0;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 # Here follows the closest we come to describing an interface.
 #
 use classes 0.943
   new     => 'ABSTRACT',
   methods => {
-			  begin       => 'ABSTRACT',
-			  end         => 'ABSTRACT',
-			  isCanceled  => 'ABSTRACT',
-			  prepare     => 'ABSTRACT',
-			  setCanceled => 'ABSTRACT',
-			  setMessage  => 'ABSTRACT',    
-			  tick        => 'ABSTRACT',
+			  begin           => 'ABSTRACT',
+			  end             => 'ABSTRACT',
+			  isCanceled      => 'ABSTRACT',
+			  prepare         => 'ABSTRACT',
+			  setCanceled     => 'ABSTRACT',
+			  setMessage      => 'ABSTRACT',
+			  setErrorMessage => 'ABSTRACT',
+			  tick            => 'ABSTRACT',
+			  subMonitor      => 'ABSTRACT',
 			 };
 
 ############################
@@ -42,7 +44,6 @@ Version 0.04
     use ProgressMonitor::Stringify::Fields::Bar;
     use ProgressMonitor::Stringify::Fields::Fixed;
     use ProgressMonitor::Stringify::Fields::Percentage;
-    use ProgressMonitor::SubTask;
 
     sub someTask
     {
@@ -56,7 +57,7 @@ Version 0.04
             $monitor->tick(1);
         }
 
-        anotherTask(ProgressMonitor::SubTask->new({parent => $monitor, parentTicks => 20}));
+        anotherTask($monitor->subMonitor({parentTicks => 20}));
 
         for (1 .. 40)
         {
@@ -260,7 +261,9 @@ interface normally.
 
 =item ProgressMonitor::SubTask
 
-This is the monitor necessary to wrap a parent monitor for a subtask
+This is the monitor necessary to wrap a parent monitor for a subtask. This is a
+concrete implementation and you may use this or call on the monitor for a new
+suitable instance using 'subMonitor'.
 
 =item ProgressMonitor::Stringify::ToStream
 
