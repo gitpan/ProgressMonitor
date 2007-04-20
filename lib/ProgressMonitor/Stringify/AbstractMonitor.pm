@@ -120,6 +120,14 @@ sub subMonitor
 	return ProgressMonitor::SubTask->new($subCfg);
 }
 
+sub setErrorMessage
+{
+	my $self = shift;
+	my $msg = shift;
+	
+	return $msg;
+}
+
 ### protected
 
 sub _get_message
@@ -187,7 +195,7 @@ sub _toString
 			if ($ms eq 'newline')
 			{
 				$msg .= $cfg->get_messageFiller x ($w - length($msg)) if ($w > length($msg));
-				$rendition = sprintf("%*.*s\n%s", $w, $w, "$msg", $rendition);
+				$rendition = sprintf("%s\n%s", $msg, $rendition);
 				$self->_set_message(undef);
 			}
 			else

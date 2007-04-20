@@ -33,7 +33,6 @@ sub new
 	$self->{$ATTR_backspaces} = undef;
 	$self->{$ATTR_hasRendered} = 0;
 
-$DB::single=1;
 	return $self;
 }
 
@@ -92,13 +91,15 @@ sub render
 sub setErrorMessage
 {
 	my $self = shift;
-	my $msg = shift;
+	my $msg = $self->SUPER::setErrorMessage(shift());
 	
-	my $cfg    = $self->_get_cfg;
-	my $stream = $cfg->get_stream;
-	print $stream "\n$msg\n";
-	
-	$self->render;
+	if ($msg)
+	{
+		my $stream = $self->_get_cfg->get_stream;
+		print $stream "\n$msg\n";
+		
+		$self->render;
+	}
 }
 
 ###

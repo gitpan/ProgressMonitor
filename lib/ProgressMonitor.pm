@@ -5,12 +5,13 @@ use strict;
 
 use 5.8.0;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 # Here follows the closest we come to describing an interface.
 #
 use classes 0.943
   new     => 'ABSTRACT',
+  clone   => 'classes::clone',
   methods => {
 			  begin           => 'ABSTRACT',
 			  end             => 'ABSTRACT',

@@ -45,11 +45,9 @@ sub render
 sub setErrorMessage
 {
 	my $self = shift;
-	my $msg = shift;
-	
-	my $cfg    = $self->_get_cfg;
-	my $emcb    = $cfg->get_errorMessageCallback;
-	
+	my $msg  = $self->SUPER::setErrorMessage(shift());
+
+	my $emcb = $self->_get_cfg->get_errorMessageCallback;
 	$emcb->($msg) if $emcb;
 }
 
@@ -76,7 +74,7 @@ sub defaultAttributeValues
 	return {
 			%{$self->SUPER::defaultAttributeValues()},
 			tickCallback => sub { X::Usage->throw("missing tickCallback"); 1; },
-			messageCallback => undef,
+			messageCallback      => undef,
 			errorMessageCallback => undef,
 		   };
 }
