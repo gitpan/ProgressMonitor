@@ -88,7 +88,7 @@ sub render
 
 				# try to ensure we have some information to predict on
 				#
-				my $ratio = $totalTicks ? $ticks / $totalTicks : 0;
+				my $ratio = defined($totalTicks) && $totalTicks > 0 ? $ticks / $totalTicks : 0;
 				if ($ratio > $cfg->get_waitForRatio)
 				{
 					my $left = int($timeSinceStart * ((1 - $ratio) / $ratio));

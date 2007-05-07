@@ -47,6 +47,12 @@ sub end
 {
 	my $self = shift;
 
+	# it is allowed to call end *directly* if there's no work
+	# to be done at all - so we call begin if not already done
+	#
+	my $state = $self->_get_state;
+	$self->begin if $state == STATE_NEW;
+
 	# going to the end state from the active state
 	#
 	$self->__shiftState(STATE_ACTIVE, STATE_DONE);
@@ -125,7 +131,7 @@ sub tick
 	{
 		# ...but even in active state, there may have been 'unknown' indicated
 		#
-		if ($self->{$ATTR_totalTicks})
+		if (defined($self->{$ATTR_totalTicks}))
 		{
 			# to avoid silly rounding errors at the end we round the tick number down by a small margin
 			#

@@ -85,7 +85,7 @@ sub render
 	{
 		# the total is known, so compute how much filler we need to indicate the ratio
 		#
-		my $ratio = defined($totalTicks) ? ($tick / $totalTicks) : 0;
+		my $ratio = defined($totalTicks) && $totalTicks > 0 ? ($tick / $totalTicks) : 0;
 		my $filler = $cfg->get_fillCharacter x ($ratio * $iw);
 		substr($bar, 0, length($filler), $filler);
 

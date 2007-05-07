@@ -46,7 +46,7 @@ sub render
 
 	my $cfg       = $self->_get_cfg;
 	my $dec       = $cfg->get_decimals;
-	my $pct       = $totalTicks > 0 ? ($ticks / $totalTicks) * 100 : 0;
+	my $pct       = defined($totalTicks) && $totalTicks > 0 ? ($ticks / $totalTicks) * 100 : 0;
 	my $rendition = $dec ? sprintf("%*.*f%s", 4 + $dec, $dec, $pct, PERCENT) : sprintf("%3u%s", int($pct), PERCENT);
 	my $fc        = $cfg->get_fillCharacter;
 	$rendition =~ s/ /$fc/g;

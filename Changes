@@ -40,3 +40,9 @@ Revision history for ProgressMonitor
 		- set[Error]Message msgs are no longer mangled, but passed right through
 		- a msg is passed through as-is if messageStrategy is newline (message filler applied though...should it?)
 		
+0.08	2007-04-23
+		- It's possible to call 'end' directly if no work is needed at all
+		  This signals 'completion' of the monitor.
+		- Avoid treating a 'begin(0)' the same as 'begin()'
+		- Division by zero in some fields when totalTicks is explicitly '0'.
+		
