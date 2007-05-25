@@ -36,6 +36,7 @@ sub render
 #	my $state = shift;
 #	my $ticks      = shift;
 #	my $totalTicks = shift;
+#	my $clean = shift;
 
 	my $seq = $self->_get_cfg->get_sequence;
 	return $seq->[$self->{$ATTR_index}++ % @$seq];

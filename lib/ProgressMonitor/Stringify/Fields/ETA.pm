@@ -51,6 +51,7 @@ sub render
 	my $state      = shift;
 	my $ticks      = shift;
 	my $totalTicks = shift;
+	my $clean      = shift;
 
 	my $now            = time;
 	my $timeSinceStart = $now - $self->{$ATTR_start};
@@ -93,7 +94,7 @@ sub render
 				{
 					my $left = int($timeSinceStart * ((1 - $ratio) / $ratio));
 					$left = DAY if $left > DAY;
-					if ($left != $self->{$ATTR_lastLeft})
+					if ($clean || $left != $self->{$ATTR_lastLeft})
 					{
 						($hh, $mm, $ss) = $self->__fmtHMS($left);
 						$delim = $cfg->get_mainDelimiter;
@@ -104,7 +105,7 @@ sub render
 			}
 		}
 	}
-	
+
 	$self->{$ATTR_lastHH}    = $hh;
 	$self->{$ATTR_lastMM}    = $mm;
 	$self->{$ATTR_lastSS}    = $ss;

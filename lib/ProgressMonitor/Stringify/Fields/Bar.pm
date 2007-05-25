@@ -49,8 +49,8 @@ sub new
 	#
 	$self->{$ATTR_idleTravellerIndex} = 0;
 	$self->{$ATTR_idleSpinnerIndex}   = 0;
-	$self->{$ATTR_lastFiller}         = '';
-	$self->{$ATTR_inited} = 0;
+	$self->{$ATTR_lastFiller}         = $cfg->get_fillCharacter;
+	$self->{$ATTR_inited}             = 0;
 
 	return $self;
 }
@@ -76,6 +76,7 @@ sub render
 	my $state      = shift;
 	my $tick       = shift;
 	my $totalTicks = shift;
+	my $clean      = shift;
 
 	my $cfg = $self->_get_cfg;
 
@@ -89,9 +90,10 @@ sub render
 		my $filler = $cfg->get_fillCharacter x ($ratio * $iw);
 		substr($bar, 0, length($filler), $filler);
 
-		# in case the filler is the same as last time (and we're not full), twirl the spinner
+		# unless we're requested to be 'clean' and in case the filler is the
+		# same as last time (and we're not full), twirl the spinner
 		#
-		if ($ratio < 1 && $filler eq $self->{$ATTR_lastFiller})
+		if (!$clean && $ratio < 1 && $filler eq $self->{$ATTR_lastFiller})
 		{
 			my $lf  = length($filler);
 			my $seq = $cfg->get_idleSpinnerSequence;

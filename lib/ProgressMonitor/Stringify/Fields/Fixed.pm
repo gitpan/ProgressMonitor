@@ -31,6 +31,7 @@ sub render
 #	my $state = shift;
 #	my $tick       = shift;
 #	my $totalTicks = shift;
+#	my $clean = shift;
 
 	return $self->_get_cfg->get_text;
 }

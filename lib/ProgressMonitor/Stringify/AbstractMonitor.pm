@@ -172,6 +172,8 @@ sub _toString
 	my $totalTicks = $self->_get_totalTicks;
 
 	my $cfg       = $self->_get_cfg;
+	my $ms  = $cfg->get_messageStrategy;
+	my $msg = $self->_get_message;
 	my $rendition = '';
 	my $allFields = $cfg->get_fields;
 	for (@$allFields)
@@ -179,15 +181,13 @@ sub _toString
 		# ask each field to render itself but ensure the result is exactly the width is
 		# what its supposed to be
 		#
-		my $fr = $_->render($state, $ticks, $totalTicks);
+		my $fr = $_->render($state, $ticks, $totalTicks, ($ms eq 'overlay_newline' && $considerMessage && $msg));
 		my $fw = $_->get_width;
 		$rendition .= sprintf("%*.*s", $fw, $fw, $fr);
 	}
 
 	if ($considerMessage)
 	{
-		my $ms  = $cfg->get_messageStrategy;
-		my $msg = $self->_get_message;
 		if ($msg && $ms ne 'none')
 		{
 			my $w = $self->{$ATTR_width};
@@ -200,7 +200,7 @@ sub _toString
 			}
 			else
 			{
-				# overlay
+				# overlay or overlay_newline
 				#
 				my $start_ovrfld = $cfg->get_messageOverlayStartField;
 				my $end_ovrfld   = $cfg->get_messageOverlayEndField;
@@ -216,8 +216,22 @@ sub _toString
 				}
 				my $mf = $cfg->get_messageFiller;
 				my $len = $mf ? $end_ovrpos - $start_ovrpos : length($msg);
-				$msg .= $cfg->get_messageFiller x ($len - length($msg)) if ($len > length($msg));
-				substr($rendition, $start_ovrpos, $len) = $msg;
+				$msg .= $mf x ($len - length($msg)) if ($len > length($msg));
+				
+				if ($ms eq 'overlay' || $end_ovrfld != @$allFields)
+				{
+					substr($rendition, $start_ovrpos, $len) = sprintf("%*.*s", $len, $len, $msg);
+				}				
+				else
+				{
+					substr($rendition, $start_ovrpos) = "$msg";
+				}
+
+				if ($ms eq 'overlay_newline')
+				{
+					$rendition .= "\n";
+					$self->_set_message(undef);
+				}
 			}
 		}
 	}
@@ -244,8 +258,9 @@ use Scalar::Util qw(blessed);
 #       Determines the strategy to use when displaying messages.
 #       'none'   : doesn't display messages
 #       'overlay': requires 'messageOverlaysFields' to be set
-#       'newline': renders it with a newline at the end, in effect pushing the
-#                  other fields 'down'.
+#       'newline': renders the message only with a newline at the end, in
+#                  effect pushing the other fields 'down'.
+#		'overlay_newline' : combines the effects of 'overlay' and 'newline'
 #   messageOverlayStartfield
 #       The field on which message overlay should start. Defaults to 0.
 #   messageOverlayEndfield
@@ -273,7 +288,7 @@ sub defaultAttributeValues
 			%{$self->SUPER::defaultAttributeValues()},
 			maxWidth                 => 0,
 			fields                   => [],
-			messageStrategy          => 'newline',
+			messageStrategy          => 'overlay_newline',
 			messageOverlayStartField => 1,
 			messageOverlayEndField   => undef,
 			messageFiller            => ' ',
@@ -306,9 +321,9 @@ sub checkAttributeValues
 	}
 
 	my $ms = $self->get_messageStrategy;
-	X::Usage->throw("invalid value for messageStrategy: $ms") unless $ms =~ /^(?:none|overlay|newline)$/;
+	X::Usage->throw("invalid value for messageStrategy: $ms") unless $ms =~ /^(?:none|overlay|newline|overlay_newline)$/;
 
-	if ($ms eq 'overlay')
+	if ($ms =~ /^overlay(?:_newline)?$/)
 	{
 		my $maxFieldNum = @$fields;
 		$self->set_messageOverlayEndField($maxFieldNum) unless defined($self->get_messageOverlayEndField);
@@ -385,6 +400,10 @@ messageOverlayEndField.
 This will cause the message and a newline to be inserted in front
 of the regular rendition, causing the running rendition to be
 'pushed' forward.
+
+=item overlay_newline
+
+This will combine the effects of 'overlay' and 'newline'.
 
 =back
 

@@ -57,11 +57,9 @@ sub end
 	#
 	$self->__shiftState(STATE_ACTIVE, STATE_DONE);
 
-	# ensure a final rendering is performed with the (possibly) fixed up tick value
-	# also clear any message
+	# ensure a final rendering is performed 
 	#
-	$self->{$ATTR_message} = undef;
-	$self->{$ATTR_ticks} = $self->{$ATTR_totalTicks};
+	
 	$self->render;
 
 	return;

@@ -52,6 +52,7 @@ sub render
 	my $state      = shift;
 	my $ticks      = shift;
 	my $totalTicks = shift;
+	my $clean      = shift;
 
 	my $cfg         = $self->_get_cfg;
 	my $hasOverflow = 0;
@@ -80,12 +81,13 @@ sub render
 			$hasOverflow = 1;
 		}
 
-		# if there was overflow, or no change in the left/right parts), twirl the idle sequence
+		# unless we're requested to be clean and if there was overflow, or no
+		# change in the left/right parts), twirl the idle sequence
 		#
 		$delim = $cfg->get_delimiter;
 		if ($state != STATE_DONE)
 		{
-			if ($hasOverflow || ($l eq $self->{$ATTR_lastLeft} && $r eq $self->{$ATTR_lastRight}))
+			if (!$clean && ($hasOverflow || ($l eq $self->{$ATTR_lastLeft} && $r eq $self->{$ATTR_lastRight})))
 			{
 				my $seq = $cfg->get_idleDelimiterSequence;
 				$delim = $seq->[$self->{$ATTR_index}++ % @$seq];

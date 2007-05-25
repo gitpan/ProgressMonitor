@@ -46,3 +46,12 @@ Revision history for ProgressMonitor
 		- Avoid treating a 'begin(0)' the same as 'begin()'
 		- Division by zero in some fields when totalTicks is explicitly '0'.
 		
+0.09	2007-05-09
+		- When using an overlay message on a field shorter than the msg, the
+		  rendition became longer than its maxwidth
+		  
+0.10	2007-05-21
+		- Removed the setting of ticks == totalTicks at 'end'
+
+0.11	2007-05-25
+		- Added a new message strategy - 'overlay_newline'.

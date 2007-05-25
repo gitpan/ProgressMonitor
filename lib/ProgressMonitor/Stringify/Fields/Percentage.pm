@@ -38,9 +38,10 @@ sub new
 sub render
 {
 	my $self       = shift;
-	my $state = shift;
+	my $state      = shift;
 	my $ticks      = shift;
 	my $totalTicks = shift;
+	my $clean      = shift;
 
 	return $self->{$ATTR_unknown} unless defined($totalTicks);
 
