@@ -5,6 +5,7 @@ use strict;
 
 use ProgressMonitor::Exceptions;
 use ProgressMonitor::State;
+use ProgressMonitor::SetMessageFlags;
 
 require ProgressMonitor if 0;
 
@@ -12,8 +13,11 @@ use classes
   extends       => 'ProgressMonitor',
   class_methods => ['_new'],
   methods       => {render => 'ABSTRACT',},
-  attrs_pr      => ['cfg', 'canceled', 'state', 'totalTicks', 'ticks', 'multiplier', 'message'],
-  throws => ['X::ProgressMonitor::InvalidState', 'X::ProgressMonitor::TooManyTicks',],
+  attrs_pr      => [
+			   'cfg',     'canceled',       'state',        'totalTicks',  'ticks', 'multiplier',
+			   'message', 'prepareMessage', 'beginMessage', 'tickMessage', 'endMessage',
+			  ],
+  throws => ['X::ProgressMonitor::InvalidState', 'X::ProgressMonitor::TooManyTicks', 'X::ProgressMonitor::UnknownSetMessageFlag',],
   ;
 
 sub begin
@@ -26,7 +30,7 @@ sub begin
 	#
 	my $state = $self->_get_state;
 	$self->prepare if $state == STATE_NEW;
-	
+
 	# enter the active state, signalling 'prepare complete'
 	#
 	$self->__shiftState(STATE_PREPARING, STATE_ACTIVE);
@@ -35,6 +39,15 @@ sub begin
 	# (may be undef, signalling 'unknown')
 	#
 	$self->{$ATTR_totalTicks} = $totalTicks;
+
+	# check for the presence of a 'begin' message...
+	#
+	#
+	if ($self->{$ATTR_beginMessage})
+	{
+		$self->_set_message($self->{$ATTR_beginMessage});
+		$self->{$ATTR_beginMessage} = undef;
+	}
 
 	# conclude with a rendering of this state
 	#
@@ -57,9 +70,22 @@ sub end
 	#
 	$self->__shiftState(STATE_ACTIVE, STATE_DONE);
 
-	# ensure a final rendering is performed 
+	# automatically complete the ticks, if requested
 	#
+	$self->{$ATTR_ticks} = $self->{$ATTR_totalTicks} if ($self->{$ATTR_cfg}->get_completeAtEnd);
 	
+	# check for the presence of an 'end' message...
+	#
+	#
+	if ($self->{$ATTR_endMessage})
+	{
+		$self->_set_message($self->{$ATTR_endMessage});
+		$self->{$ATTR_endMessage} = undef;
+	}
+
+	# ensure a final rendering is performed
+	#
+
 	$self->render;
 
 	return;
@@ -81,6 +107,15 @@ sub prepare
 	# this is the first state transition after creation - signal prep stage
 	#
 	$self->__shiftState(STATE_NEW, STATE_PREPARING);
+
+	# check for the presence of a 'prepare' message...
+	#
+	#
+	if ($self->{$ATTR_prepareMessage})
+	{
+		$self->_set_message($self->{$ATTR_prepareMessage});
+		$self->{$ATTR_prepareMessage} = undef;
+	}
 
 	# render this state
 	#
@@ -104,13 +139,36 @@ sub setCanceled
 sub setMessage
 {
 	my $self = shift;
-	my $msg = shift;
-	
-	$self->_set_message($msg);
-		
-	$self->render;
-	
-	return;	
+	my $msg  = shift;
+	my $when = shift || SM_NOW;
+
+	if ($when == SM_NOW)
+	{
+		$self->_set_message($msg);
+		$self->render;
+	}
+	elsif ($when == SM_PREPARE)
+	{
+		$self->{$ATTR_prepareMessage} = $msg;
+	}
+	elsif ($when == SM_BEGIN)
+	{
+		$self->{$ATTR_beginMessage} = $msg;
+	}
+	elsif ($when == SM_TICK)
+	{
+		$self->{$ATTR_tickMessage} = $msg;
+	}
+	elsif ($when == SM_END)
+	{
+		$self->{$ATTR_endMessage} = $msg;
+	}
+	else
+	{
+		X::ProgressMonitor::UnknownSetMessageFlag->throw("Unknown value: $when");
+	}
+
+	return;
 }
 
 sub tick
@@ -134,11 +192,12 @@ sub tick
 			# to avoid silly rounding errors at the end we round the tick number down by a small margin
 			#
 			my $m = $self->{$ATTR_multiplier};
-			$self->{$ATTR_ticks} += (int($ticks * $m) / $m) if ($ticks && $ticks >= 0);
+			$self->{$ATTR_ticks} += (int($ticks * $m + 1) / $m) if ($ticks && $ticks >= 0);
 
 			# complain if we get too many ticks
 			#
-			X::ProgressMonitor::TooManyTicks->throw("$self->{$ATTR_ticks} exceeds $self->{$ATTR_totalTicks}") if int($self->{$ATTR_ticks}) > int($self->{$ATTR_totalTicks});
+			X::ProgressMonitor::TooManyTicks->throw("$self->{$ATTR_ticks} exceeds $self->{$ATTR_totalTicks}")
+			  if int($self->{$ATTR_ticks}) > int($self->{$ATTR_totalTicks});
 		}
 		else
 		{
@@ -146,6 +205,15 @@ sub tick
 			#
 			$self->{$ATTR_ticks}++;
 		}
+	}
+
+	# check for the presence of a 'tick' message...
+	#
+	#
+	if ($self->{$ATTR_tickMessage})
+	{
+		$self->_set_message($self->{$ATTR_tickMessage});
+		$self->{$ATTR_tickMessage} = undef;
 	}
 
 	# render is always called!
@@ -189,15 +257,15 @@ sub _get_totalTicks
 sub _get_message
 {
 	my $self = shift;
-	
+
 	return $self->{$ATTR_message};
 }
 
 sub _set_message
 {
 	my $self = shift;
-	my $msg = shift;
-	
+	my $msg  = shift;
+
 	$self->{$ATTR_message} = $msg;
 }
 
@@ -215,12 +283,16 @@ sub _new
 
 	# initialize the rest
 	#
-	$self->{$ATTR_state}      = STATE_NEW;
-	$self->{$ATTR_canceled}   = 0;
-	$self->{$ATTR_ticks}      = 0;
-	$self->{$ATTR_totalTicks} = undef;
-	$self->{$ATTR_multiplier} = 0 + ("1" . "0" x $cfg->get_resolution);
-	$self->{$ATTR_message} = undef;
+	$self->{$ATTR_state}          = STATE_NEW;
+	$self->{$ATTR_canceled}       = 0;
+	$self->{$ATTR_ticks}          = 0;
+	$self->{$ATTR_totalTicks}     = undef;
+	$self->{$ATTR_multiplier}     = 0 + ("1" . "0" x $cfg->get_resolution);
+	$self->{$ATTR_message}        = undef;
+	$self->{$ATTR_prepareMessage} = undef;
+	$self->{$ATTR_beginMessage}   = undef;
+	$self->{$ATTR_tickMessage}    = undef;
+	$self->{$ATTR_endMessage}     = undef;
 
 	return $self;
 }
@@ -282,14 +354,14 @@ use warnings;
 #
 use classes
   extends => 'ProgressMonitor::AbstractConfiguration',
-  attrs   => ['resolution',],
+  attrs   => ['resolution', 'completeAtEnd'],
   ;
 
 sub defaultAttributeValues
 {
 	my $self = shift;
 
-	return {%{$self->SUPER::defaultAttributeValues()}, resolution => 8};
+	return {%{$self->SUPER::defaultAttributeValues()}, resolution => 8, completeAtEnd => 1};
 }
 
 sub checkAttributeValues
@@ -407,6 +479,9 @@ Configuration data:
     Should not needed to be used. Makes sure to round the results down to the given size
     decimals so as to avoid wacky floating point rounding errors when using inexact
     floating point values in calculations (this happens when using subtasks).
+
+  completeAtEnd (default => 1)
+    Will automatically add any ticks not performed when end is called.
 
 =item _get_cfg
 

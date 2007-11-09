@@ -18,7 +18,7 @@ require ProgressMonitor::Stringify::AbstractMonitor if 0;
 use classes
   extends  => 'ProgressMonitor::Stringify::AbstractMonitor',
   new      => 'new',
-  attrs_pr => ['backspaces', 'hasRendered'],
+  attrs_pr => ['backspaces', 'needBS'],
   ;
 
 sub new
@@ -30,8 +30,8 @@ sub new
 
 	# initialize the rest
 	#
-	$self->{$ATTR_backspaces} = undef;
-	$self->{$ATTR_hasRendered} = 0;
+	$self->{$ATTR_backspaces}  = undef;
+	$self->{$ATTR_needBS} = 0;
 
 	return $self;
 }
@@ -42,22 +42,19 @@ sub render
 
 	local $| = 1;
 
-	my $bs     = $self->{$ATTR_backspaces};
+	my $bs = $self->{$ATTR_backspaces};
 	$bs = $self->{$ATTR_backspaces} = BACKSPACE x $self->get_width unless $bs;
 
-	my $cfg    = $self->_get_cfg;
-	my $stream = $cfg->get_stream;
+	my $cfg     = $self->_get_cfg;
+	my $stream  = $cfg->get_stream;
 	my $bsAfter = $cfg->get_backspaceAfterRender;
 	# render and print
 	#
-	if ($self->{$ATTR_hasRendered} && !$bsAfter)
-	{
-		print $stream $bs ;
-	}
+	print $stream $bs if (!$bsAfter && $self->{$ATTR_needBS});
 	my $s = $self->_toString;
 	print $stream $s;
-	print $stream $bs if $bsAfter;
-	$self->{$ATTR_hasRendered} = 1;
+	$self->{$ATTR_needBS} = ($s !~ /\n$/ ? 1 : 0);
+	print $stream $bs if ($bsAfter && $self->{$ATTR_needBS});
 
 	if ($self->_get_state == STATE_DONE)
 	{
@@ -91,13 +88,13 @@ sub render
 sub setErrorMessage
 {
 	my $self = shift;
-	my $msg = $self->SUPER::setErrorMessage(shift());
-	
+	my $msg  = $self->SUPER::setErrorMessage(shift());
+
 	if ($msg)
 	{
 		my $stream = $self->_get_cfg->get_stream;
 		print $stream "\n$msg\n";
-		
+
 		$self->render;
 	}
 }

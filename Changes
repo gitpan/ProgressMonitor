@@ -55,3 +55,25 @@ Revision history for ProgressMonitor
 
 0.11	2007-05-25
 		- Added a new message strategy - 'overlay_newline'.
+		
+0.12	2007-05-25
+		- When streaming a msg with \n at the end, no need to bs then.
+
+0.20	2007-06-08
+		- changing the setMessage API, to enable setting 'delayed' messages
+		  i.e. 'set message on next tick' etc.
+
+0.21	2007-06-08
+		- the newline message strategy now better handles embedded/trailing \n
+		  characters.
+		- new strategy 'overlay_honor_newline'
+		
+0.22	2007-06-11
+		- when overlaying a message, make sure to restrict it to field size,
+		  except when a newline will be printed
+
+0.23	2007-06-14
+		- added the Dynamic field.
+
+0.24	2007-11-09
+		- Made end() autocomplete ticks.

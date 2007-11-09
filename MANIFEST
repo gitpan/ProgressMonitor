@@ -9,12 +9,14 @@ lib/ProgressMonitor/AbstractConfiguration.pm
 lib/ProgressMonitor/AbstractStatefulMonitor.pm
 lib/ProgressMonitor/Exceptions.pm
 lib/ProgressMonitor/Null.pm
+lib/ProgressMonitor/SetMessageFlags.pm
 lib/ProgressMonitor/State.pm
 lib/ProgressMonitor/Stringify/AbstractMonitor.pm
 lib/ProgressMonitor/Stringify/Fields/AbstractDynamicField.pm
 lib/ProgressMonitor/Stringify/Fields/AbstractField.pm
 lib/ProgressMonitor/Stringify/Fields/Bar.pm
 lib/ProgressMonitor/Stringify/Fields/Counter.pm
+lib/ProgressMonitor/Stringify/Fields/Dynamic.pm
 lib/ProgressMonitor/Stringify/Fields/ETA.pm
 lib/ProgressMonitor/Stringify/Fields/Fixed.pm
 lib/ProgressMonitor/Stringify/Fields/Percentage.pm

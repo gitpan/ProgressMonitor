@@ -19,6 +19,7 @@ use classes
   ;
 
 use ProgressMonitor::SubTask;
+use ProgressMonitor::SetMessageFlags;
 
 sub _new
 {
@@ -105,17 +106,18 @@ sub setMessage
 {
 	my $self = shift;
 	my $msg  = shift;
+	my $when = shift || SM_NOW;
 
-	$self->{$ATTR_msgto} = undef;
+	$self->{$ATTR_msgto} = undef if $when == SM_NOW;
 
-	return $self->SUPER::setMessage($msg);
+	return $self->SUPER::setMessage($msg, $when);
 }
 
 sub subMonitor
 {
-	my $self = shift;
+	my $self   = shift;
 	my $subCfg = shift || {};
-	
+
 	$subCfg->{parent} = $self;
 	return ProgressMonitor::SubTask->new($subCfg);
 }
@@ -123,8 +125,8 @@ sub subMonitor
 sub setErrorMessage
 {
 	my $self = shift;
-	my $msg = shift;
-	
+	my $msg  = shift;
+
 	return $msg;
 }
 
@@ -137,7 +139,7 @@ sub _get_message
 	my $now = time;
 	if (defined($self->{$ATTR_msgto}))
 	{
-		$self->_set_message(undef) if ($self->{$ATTR_msgto} <= $now)
+		$self->_set_message(undef) if ($self->{$ATTR_msgto} <= $now);
 	}
 	else
 	{
@@ -151,10 +153,10 @@ sub _get_message
 sub _set_message
 {
 	my $self = shift;
-	my $msg = shift;
+	my $msg  = shift;
 
 	$self->{$ATTR_msgto} = undef;
-	
+
 	return $self->SUPER::_set_message($msg);
 }
 
@@ -172,16 +174,27 @@ sub _toString
 	my $totalTicks = $self->_get_totalTicks;
 
 	my $cfg       = $self->_get_cfg;
-	my $ms  = $cfg->get_messageStrategy;
-	my $msg = $self->_get_message;
+	my $ms        = $cfg->get_messageStrategy;
+	my $msg       = $self->_get_message;
 	my $rendition = '';
+
+	my $forceNewline = 0;
+	if ($ms eq 'overlay_newline')
+	{
+		$forceNewline = 1;
+	}
+	elsif ($ms eq 'overlay_honor_newline')
+	{
+		$forceNewline = ($msg && $msg =~ /\n$/);
+	}
+
 	my $allFields = $cfg->get_fields;
 	for (@$allFields)
 	{
 		# ask each field to render itself but ensure the result is exactly the width is
 		# what its supposed to be
 		#
-		my $fr = $_->render($state, $ticks, $totalTicks, ($ms eq 'overlay_newline' && $considerMessage && $msg));
+		my $fr = $_->render($state, $ticks, $totalTicks, ($forceNewline && $considerMessage && $msg));
 		my $fw = $_->get_width;
 		$rendition .= sprintf("%*.*s", $fw, $fw, $fr);
 	}
@@ -194,14 +207,23 @@ sub _toString
 
 			if ($ms eq 'newline')
 			{
-				$msg .= $cfg->get_messageFiller x ($w - length($msg)) if ($w > length($msg));
-				$rendition = sprintf("%s\n%s", $msg, $rendition);
+				# accept embedded newlines, but ensure the message filler is applied (if set)
+				# the split will also avoid stray empty lines at the end
+				#
+				my $fullMsg = '';
+				foreach my $msgLine (split(/\n/, $msg))
+				{
+					$msgLine .= $cfg->get_messageFiller x ($w - length($msgLine)) if ($w > length($msgLine));
+					$fullMsg .= "$msgLine\n";
+				}
+				$rendition = sprintf("%s%s", $fullMsg, $rendition);
 				$self->_set_message(undef);
 			}
 			else
 			{
-				# overlay or overlay_newline
+				# overlay or overlay_newline or overlay_honor_newline
 				#
+				my $nlConversion = $cfg->get_messageOverlayNewlineConversion;
 				my $start_ovrfld = $cfg->get_messageOverlayStartField;
 				my $end_ovrfld   = $cfg->get_messageOverlayEndField;
 				my $start_ovrpos;
@@ -214,20 +236,22 @@ sub _toString
 					$end_ovrpos = $offset if $end_ovrfld == $_;
 					last if ($start_ovrpos && $end_ovrpos);
 				}
+
+				$msg =~ s/\n/$nlConversion/g;
 				my $mf = $cfg->get_messageFiller;
 				my $len = $mf ? $end_ovrpos - $start_ovrpos : length($msg);
 				$msg .= $mf x ($len - length($msg)) if ($len > length($msg));
-				
-				if ($ms eq 'overlay' || $end_ovrfld != @$allFields)
+
+				if ($ms eq 'overlay' || ($ms eq 'overlay_honor_newline' && !$forceNewline))
 				{
 					substr($rendition, $start_ovrpos, $len) = sprintf("%*.*s", $len, $len, $msg);
-				}				
+				}
 				else
 				{
-					substr($rendition, $start_ovrpos) = "$msg";
+					substr($rendition, $start_ovrpos) = $msg;
 				}
 
-				if ($ms eq 'overlay_newline')
+				if ($forceNewline)
 				{
 					$rendition .= "\n";
 					$self->_set_message(undef);
@@ -259,8 +283,11 @@ use Scalar::Util qw(blessed);
 #       'none'   : doesn't display messages
 #       'overlay': requires 'messageOverlaysFields' to be set
 #       'newline': renders the message only with a newline at the end, in
-#                  effect pushing the other fields 'down'.
+#                  effect pushing the other fields 'down'. Handles and 'honors'
+#                  embedded newlines, trailing newlines are dropped.
 #		'overlay_newline' : combines the effects of 'overlay' and 'newline'
+#		'overlay_honor_newline' : acts as 'overlay', but will ensure to make a
+#                                 newline if the message has a trailing one.
 #   messageOverlayStartfield
 #       The field on which message overlay should start. Defaults to 0.
 #   messageOverlayEndfield
@@ -273,11 +300,19 @@ use Scalar::Util qw(blessed);
 #       The time in seconds before the message is cleared automatically. This
 #       is only relevant for overlay (for newline, it only appears once).
 #       Defaults to 3 seconds. Set to -1 for 'no timeout'.
+#	messageOverlayNewlineConversion
+#		For 'overlay' and 'overlay_newline', any embedded/trailing newlines
+#		will be converted to another string, settable by this cfg variable.
+#		Defaults to ' ' (space).
 #
 use classes
   extends => 'ProgressMonitor::AbstractStatefulMonitorConfiguration',
-  attrs   => ['maxWidth', 'fields', 'messageStrategy', 'messageOverlayStartField', 'messageOverlayEndField', 'messageFiller',
-			'messageTimeout'],
+  attrs   => [
+			'maxWidth',               'fields',
+			'messageStrategy',        'messageOverlayStartField',
+			'messageOverlayEndField', 'messageFiller',
+			'messageTimeout',         'messageOverlayNewlineConversion'
+		   ],
   ;
 
 sub defaultAttributeValues
@@ -286,13 +321,14 @@ sub defaultAttributeValues
 
 	return {
 			%{$self->SUPER::defaultAttributeValues()},
-			maxWidth                 => 0,
-			fields                   => [],
-			messageStrategy          => 'overlay_newline',
-			messageOverlayStartField => 1,
-			messageOverlayEndField   => undef,
-			messageFiller            => ' ',
-			messageTimeout           => 3,
+			maxWidth                        => 0,
+			fields                          => [],
+			messageStrategy                 => 'newline',
+			messageOverlayStartField        => 1,
+			messageOverlayEndField          => undef,
+			messageFiller                   => ' ',
+			messageTimeout                  => -1,
+			messageOverlayNewlineConversion => ' ',
 		   };
 }
 
@@ -321,9 +357,10 @@ sub checkAttributeValues
 	}
 
 	my $ms = $self->get_messageStrategy;
-	X::Usage->throw("invalid value for messageStrategy: $ms") unless $ms =~ /^(?:none|overlay|newline|overlay_newline)$/;
+	X::Usage->throw("invalid value for messageStrategy: $ms")
+	  unless $ms =~ /^(?:none|overlay|newline|overlay_newline|overlay_honor_newline)$/;
 
-	if ($ms =~ /^overlay(?:_newline)?$/)
+	if ($ms =~ /^overlay/)
 	{
 		my $maxFieldNum = @$fields;
 		$self->set_messageOverlayEndField($maxFieldNum) unless defined($self->get_messageOverlayEndField);
@@ -424,6 +461,11 @@ remove it. Set to -1 for infinite.
 
 Together these define the starting and ending field number that the message
 should overlay. This defaults to 'all fields'.
+
+=item messageOverlayNewlineConversion (default => ' ')
+
+Embedded/trailing newlines will be converted to this string for the 'overlay'
+and 'overlay_newline' strategies.
 
 =back
 

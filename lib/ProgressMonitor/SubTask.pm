@@ -87,20 +87,6 @@ sub setCanceled
 	return $self->_get_cfg->get_parent->setCanceled(@_);
 }
 
-sub setMessage
-{
-	my $self = shift;
-
-	my $ret;
-	
-	# propagate this to the parent if we're set that way
-	#
-	my $cfg = $self->_get_cfg;
-	$ret = $cfg->get_parent->setMessage(shift()) if $cfg->get_passMessageToParent;
-	
-	return $ret;
-}
-
 sub setErrorMessage
 {
 	my $self = shift;
@@ -143,6 +129,17 @@ sub subMonitor
 	
 	$subCfg->{parent} = $self;
 	return ProgressMonitor::SubTask->new($subCfg);
+}
+
+sub _set_message
+{
+	my $self = shift;
+	my $msg = shift;
+	
+	# propagate this to the parent if we're set that way
+	#
+	my $cfg = $self->_get_cfg;
+	$cfg->get_parent->setMessage($msg) if $cfg->get_passMessageToParent;
 }
 
 ###
