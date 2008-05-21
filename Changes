@@ -77,3 +77,8 @@ Revision history for ProgressMonitor
 
 0.24	2007-11-09
 		- Made end() autocomplete ticks.
+
+0.26	2008-05-21
+		- Rendering bs after as default exposed a subtle problem when running
+		in putty; after a setErrorMessage (with implicit newlines), bs was
+		printed anyway causing output to be overwritten

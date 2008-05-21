@@ -64,7 +64,7 @@ sub end
 	# to be done at all - so we call begin if not already done
 	#
 	my $state = $self->_get_state;
-	$self->begin if $state == STATE_NEW;
+	$self->begin if $state == STATE_NEW || $state == STATE_PREPARING;
 
 	# going to the end state from the active state
 	#

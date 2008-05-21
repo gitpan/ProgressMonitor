@@ -5,7 +5,7 @@ use strict;
 
 use 5.8.0;
 
-our $VERSION = '0.24';
+our $VERSION = '0.26';
 
 # Here follows the closest we come to describing an interface.
 #
@@ -32,7 +32,7 @@ ProgressMonitor - a flexible and configurable framework for providing feedback o
 
 =head1 VERSION
 
-Version 0.24
+Version 0.25
 
 =head1 SYNOPSIS
 
