@@ -94,7 +94,8 @@ sub setErrorMessage
 	{
 		my $stream = $self->_get_cfg->get_stream;
 		print $stream "\n$msg\n";
-
+		$self->{$ATTR_needBS} = 0;
+		
 		$self->render;
 	}
 }

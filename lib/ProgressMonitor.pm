@@ -5,7 +5,7 @@ use strict;
 
 use 5.8.0;
 
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 
 # Here follows the closest we come to describing an interface.
 #

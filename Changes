@@ -82,3 +82,6 @@ Revision history for ProgressMonitor
 		- Rendering bs after as default exposed a subtle problem when running
 		in putty; after a setErrorMessage (with implicit newlines), bs was
 		printed anyway causing output to be overwritten
+		
+0.27	2008-05-21
+		- Silly mistake, bug for 0.26 fixed in file not part of this tree...redone.
