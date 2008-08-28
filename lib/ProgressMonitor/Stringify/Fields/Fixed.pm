@@ -114,6 +114,10 @@ The text to display.
 
 =back
 
+=back
+
+=over 2
+
 =item change_text( $newText, [$filler] )
 
 Change the text to display and returns the old text.

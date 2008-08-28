@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                ProgressMonitor
-version:             0.28
+version:             0.29
 abstract:            a flexible and configurable framework for providing feedback on how a long-running task is proceeding.
 license:             ~
 author:              

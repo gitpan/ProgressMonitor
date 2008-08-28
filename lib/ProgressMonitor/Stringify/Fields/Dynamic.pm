@@ -53,6 +53,23 @@ sub render
 	return $self->{$ATTR_rendering};
 }
 
+sub change_text
+{
+	my $self = shift;
+	my $newText = shift;
+
+	my $w = $self->get_width;
+	my $cfg = $self->_get_cfg;
+	
+	$newText = substr($newText . ($cfg->get_fillCharacter x $w), 0, $w);
+
+	my $oldText = $cfg->get_text;
+
+	$cfg->set_text($newText);
+	
+	return $oldText;
+}
+
 ###
 
 package ProgressMonitor::Stringify::Fields::DynamicConfiguration;
@@ -128,6 +145,17 @@ The text to display.
 The filler. 
 
 =back
+
+=back
+
+=over 2
+
+=item change_text( $newText)
+
+Change the text to display and returns the old text.
+
+The passed in text will be padded to the assigned width of the field if its shorter using the 'fillCharacter'.
+If it's too long, it will be cut.
 
 =back
 
