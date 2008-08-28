@@ -85,3 +85,6 @@ Revision history for ProgressMonitor
 		
 0.27	2008-05-21
 		- Silly mistake, bug for 0.26 fixed in file not part of this tree...redone.
+		
+0.28	2008-08-28
+		- Added a way to change the text in a Fixed field.

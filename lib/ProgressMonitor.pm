@@ -5,7 +5,7 @@ use strict;
 
 use 5.8.0;
 
-our $VERSION = '0.27';
+our $VERSION = '0.28';
 
 # Here follows the closest we come to describing an interface.
 #
@@ -32,7 +32,7 @@ ProgressMonitor - a flexible and configurable framework for providing feedback o
 
 =head1 VERSION
 
-Version 0.25
+Version 0.28
 
 =head1 SYNOPSIS
 
@@ -380,7 +380,7 @@ and surrounding mechanisms.
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006, 2007 Kenneth Olwing, all rights reserved.
+Copyright 2006, 2007, 2008 Kenneth Olwing, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

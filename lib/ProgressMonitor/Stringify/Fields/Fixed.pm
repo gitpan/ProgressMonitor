@@ -36,6 +36,23 @@ sub render
 	return $self->_get_cfg->get_text;
 }
 
+sub change_text
+{
+	my $self = shift;
+	my $newText = shift;
+	my $filler = shift || ' ';
+	
+	my $w = $self->get_width;
+	$newText = substr($newText . ($filler x $w), 0, $w);
+
+	my $cfg = $self->_get_cfg;
+	my $oldText = $cfg->get_text;
+
+	$cfg->set_text($newText);
+	
+	return $oldText;
+}
+
 ###
 
 package ProgressMonitor::Stringify::Fields::FixedConfiguration;
@@ -96,6 +113,13 @@ Configuration data:
 The text to display. 
 
 =back
+
+=item change_text( $newText, [$filler] )
+
+Change the text to display and returns the old text.
+
+The filler is optional, and defaults to ' ' (space), and will be used to pad the passed in text to the assigned width of the field if its shorter.
+If it's too long, it will be cut.
 
 =back
 
