@@ -88,3 +88,6 @@ Revision history for ProgressMonitor
 		
 0.28	2008-08-28
 		- Added a way to change the text in a Fixed field.
+
+0.30	2008-08-28
+		- Added a way to change the text in a Dynamic field.

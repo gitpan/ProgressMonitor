@@ -61,11 +61,9 @@ sub change_text
 	my $w = $self->get_width;
 	my $cfg = $self->_get_cfg;
 	
-	$newText = substr($newText . ($cfg->get_fillCharacter x $w), 0, $w);
+	my $oldText = $self->{$ATTR_rendering};
 
-	my $oldText = $cfg->get_text;
-
-	$cfg->set_text($newText);
+	$self->{$ATTR_rendering} = substr($newText . ($cfg->get_fillCharacter x $w), 0, $w); 	
 	
 	return $oldText;
 }
