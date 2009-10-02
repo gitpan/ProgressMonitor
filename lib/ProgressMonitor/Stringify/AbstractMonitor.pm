@@ -15,7 +15,6 @@ use classes
   class_methods => ['_new'],
   attrs_ro      => ['width',],
   attrs_pr      => ['msgto'],
-  throws        => ['X::ProgressMonitor::InsufficientWidth',],
   ;
 
 use ProgressMonitor::SubTask;
@@ -45,60 +44,76 @@ sub _new
 	#
 	my $wsum = 0;
 	$wsum += $_->get_width for (@$allFields);
-	X::ProgressMonitor::InsufficientWidth->throw($wsum) if $wsum > $maxWidth;
+	print STDERR ("WARNING: Insufficient width for monitor ($maxWidth < $wsum). Feedback output will not display properly.\n") if $wsum > $maxWidth;
 
-	# in a round robin fashion, try to fairly give dynfields
-	# extra width until all are full, or width is exhausted
-	#
-
-	# first make a separate list of the dynamic fields
-	#
-	my @dynFields;
-	for (@$allFields)
-	{
-		push(@dynFields, $_) if $_->isDynamic;
-	}
-
-	# begin with the width we have left to give out
-	# and loop while there is any width left and there are any dynamic fields
-	# that are 'still hungry'...
-	#
+	# now try to make the stringification fit 'best possible'
+	# 
 	my $remainingWidth = $maxWidth - $wsum;
-	while ($remainingWidth && @dynFields)
+	if ($remainingWidth < 0)
 	{
-		my $dynFieldCount = @dynFields;
-
-		# make a list with the current width we have fairly distributed
+		# in this case, the available line is too short
 		#
-		my @allotments;
-		$allotments[$_ % $dynFieldCount]++ for (0 .. ($remainingWidth - 1));
-
-		# now iterate over the list and give the corresponding dynfield the
-		# width it has been allotted.
-		# it will report how much it 'used' (due to its own constraints, if any)
-		# and we can disseminate remains in the next loop
+		# just set the width we can use, regardless
 		#
-		for (0 .. (@allotments - 1))
-		{
-			my $allottedExtraWidth = $allotments[$_];
-			my $unusedExtraWidth   = $dynFields[$_]->grabExtraWidth($allottedExtraWidth);
-			$remainingWidth -= $allottedExtraWidth - $unusedExtraWidth;
-		}
-
-		# now recalculate the list with dynfields (any fields that have
-		# reached their max width are no longer (dynamic')
+			$self->{$ATTR_width} = $maxWidth;
+	}
+	else
+	{
+		# in this case, the line may provide extra space for dynamic fields to get more
+		# than they minimally need, which may make them look nicer
 		#
-		@dynFields = ();
+		# in a round robin fashion, try to fairly give dynfields
+		# extra width until all are full, or width is exhausted
+		#
+
+		# first make a separate list of the dynamic fields
+		#
+		my @dynFields;
 		for (@$allFields)
 		{
 			push(@dynFields, $_) if $_->isDynamic;
 		}
+
+		# begin with the width we have left to give out
+		# and loop while there is any width left and there are any dynamic fields
+		# that are 'still hungry'...
+		#
+		while ($remainingWidth && @dynFields)
+		{
+			my $dynFieldCount = @dynFields;
+
+			# make a list with the current width we have fairly distributed
+			#
+			my @allotments;
+			$allotments[$_ % $dynFieldCount]++ for (0 .. ($remainingWidth - 1));
+
+			# now iterate over the list and give the corresponding dynfield the
+			# width it has been allotted.
+			# it will report how much it 'used' (due to its own constraints, if any)
+			# and we can disseminate remains in the next loop
+			#
+			for (0 .. (@allotments - 1))
+			{
+				my $allottedExtraWidth = $allotments[$_];
+				my $unusedExtraWidth   = $dynFields[$_]->grabExtraWidth($allottedExtraWidth);
+				$remainingWidth -= $allottedExtraWidth - $unusedExtraWidth;
+			}
+
+			# now recalculate the list with dynfields (any fields that have
+			# reached their max width are no longer (dynamic')
+			#
+			@dynFields = ();
+			for (@$allFields)
+			{
+				push(@dynFields, $_) if $_->isDynamic;
+			}
+		}
+
+		# finally set the width we've actually used
+		#
+		$self->{$ATTR_width} = $maxWidth - $remainingWidth;
 	}
-
-	# finally set the width we've actually used
-	#
-	$self->{$ATTR_width} = $maxWidth - $remainingWidth;
-
+	
 	return $self;
 }
 
@@ -199,6 +214,14 @@ sub _toString
 		$rendition .= sprintf("%*.*s", $fw, $fw, $fr);
 	}
 
+	if (!$cfg->get_allowOverflow)
+	{
+		# we must make sure the width of the rendition won't cause linewrapping
+		#
+		my $w = $self->{$ATTR_width};
+		$rendition = sprintf("%*.*s", $w, $w, $rendition) if (length($rendition) > $w);
+	}
+
 	if ($considerMessage)
 	{
 		if ($msg && $ms ne 'none')
@@ -275,6 +298,9 @@ use Scalar::Util qw(blessed);
 # Attributes:
 #	maxWidth
 #		The maximum width this monitor can occupy altogether.
+#   allowOverflow
+#       In case the width is too small, let it overflow and linewrap.
+#       Else, cut the finished rendition so no linewrap occurs, but loses info.
 #	fields
 #		An array of fields (or a single field if only one) that should be used
 #		A field instance can not be reused in the list!
@@ -308,7 +334,7 @@ use Scalar::Util qw(blessed);
 use classes
   extends => 'ProgressMonitor::AbstractStatefulMonitorConfiguration',
   attrs   => [
-			'maxWidth',               'fields',
+			'maxWidth',               'allowOverflow', 'fields',
 			'messageStrategy',        'messageOverlayStartField',
 			'messageOverlayEndField', 'messageFiller',
 			'messageTimeout',         'messageOverlayNewlineConversion'
@@ -322,6 +348,7 @@ sub defaultAttributeValues
 	return {
 			%{$self->SUPER::defaultAttributeValues()},
 			maxWidth                        => 0,
+			allowOverflow					=> 0,
 			fields                          => [],
 			messageStrategy                 => 'newline',
 			messageOverlayStartField        => 1,
@@ -407,8 +434,15 @@ depends on the fields it uses; specifically, if dynamic fields are used, they
 will be given width until all is used or until the dynamic fields themselves 
 have reached their maxWidth if any.
 
-Throws X::ProgressMonitor::InsufficientWidth if the maxWidth is to small to 
-handle the minimum requirements for all the fields.
+If the maxWidth is too small to handle the minimum requirements for all fields
+the C<allowOverflow> setting controls whether the rendition causes linewrapping
+or if it's just cut.
+
+=item allowOverflow (default => 0)
+
+If set to true and maxWidth is exceeded, linewrapping will occur for a possibly ugly display.
+If set to false, the rendition will be cut to avoid linewrapping, for a possible loss of important
+information.
 
 =item fields (default => [])
 

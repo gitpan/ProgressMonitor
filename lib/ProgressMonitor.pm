@@ -3,9 +3,9 @@ package ProgressMonitor;
 use warnings;
 use strict;
 
-use 5.8.0;
+use 5.008; use v5.8.0;
 
-our $VERSION = '0.30';
+our $VERSION = '0.31';
 
 # Here follows the closest we come to describing an interface.
 #
@@ -32,7 +32,7 @@ ProgressMonitor - a flexible and configurable framework for providing feedback o
 
 =head1 VERSION
 
-Version 0.30
+Version 0.31
 
 =head1 SYNOPSIS
 
@@ -286,7 +286,7 @@ defined stream, it will callback to a code reference you provide.
 =item ProgressMonitor::Stringify::Fields::Bar
 
 This will display a traditional 'bar' that grows from left to right indicating
-completion amount. If the resolution is to poor to show progress, it will still 
+completion amount. If the resolution is too poor to show progress, it will still 
 do something. In cases of an unknown total it will provide a visual indication
 of movement.
 
