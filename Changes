@@ -91,3 +91,10 @@ Revision history for ProgressMonitor
 
 0.30	2008-08-28
 		- Added a way to change the text in a Dynamic field.
+
+0.31	(clearly dropped the ball on this ver, must retrack and see what I did)
+
+0.32	2010-06-11
+		Unsure what happened...all versions were removed on CPAN and to be able to
+		upload again, I have to bump the version number. No change from 0.31 (which,
+		as I mention above has an undocumented change from 0.30).

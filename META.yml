@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                ProgressMonitor
-version:             0.31
+version:             0.32
 abstract:            a flexible and configurable framework for providing feedback on how a long-running task is proceeding.
 license:             ~
 author:              
@@ -9,7 +9,7 @@ generated_by:        ExtUtils::MakeMaker version 6.42_01
 distribution_type:   module
 requires:     
     classes:                       0.943
-    Term::Size::Unix:              0.204
+    Term::Size::Win32:             0.207
     Test::More:                    0.64
 meta-spec:
     url:     http://module-build.sourceforge.net/META-spec-v1.3.html
