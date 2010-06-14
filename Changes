@@ -98,3 +98,6 @@ Revision history for ProgressMonitor
 		Unsure what happened...all versions were removed on CPAN and to be able to
 		upload again, I have to bump the version number. No change from 0.31 (which,
 		as I mention above has an undocumented change from 0.30).
+
+0.33	2010-06-14
+		Bumping to try to get an acceptable format for the PAUSE indexer. No changes.

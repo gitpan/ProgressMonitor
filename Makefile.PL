@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use 5.8.0;
+use 5.008;
 
 use ExtUtils::MakeMaker;
 
@@ -17,6 +17,6 @@ WriteMakefile(
 							'classes'    => 0.943,
 							"Term::Size::$tsData->[0]" => $tsData->[1],
 						   },
-			  dist  => {TARFLAGS => '-c -v --mode=777 -f', COMPRESS => 'gzip -9f', SUFFIX => 'gz',},
+			  dist  => {TARFLAGS => '-c -v --mode=775 -f', COMPRESS => 'gzip -9f', SUFFIX => 'gz',},
 			  clean => {FILES    => 'ProgressMonitor-*'},
 			 );

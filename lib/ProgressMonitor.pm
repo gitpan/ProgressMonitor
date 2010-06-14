@@ -3,9 +3,9 @@ package ProgressMonitor;
 use warnings;
 use strict;
 
-use 5.008; use v5.8.0;
+use 5.008;
 
-our $VERSION = '0.32';
+our $VERSION = '0.33';
 
 # Here follows the closest we come to describing an interface.
 #
